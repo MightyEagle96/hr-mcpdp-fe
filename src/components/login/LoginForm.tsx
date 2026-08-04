@@ -4,15 +4,16 @@ import Input from "../form/Input";
 import { Lock, Mail } from "lucide-react";
 import PasswordInput from "../form/PasswordInput";
 import { useState } from "react";
-import { dataValidationSchema } from "../../pages/public/dataValidationSchema";
+
 import { toast } from "sonner";
+import { ValidationSchema } from "../../pages/public/dataValidationSchema";
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({ email: "", password: "" });
 
   const loginHandler = (e: React.FormEvent) => {
     e.preventDefault();
-    const result = dataValidationSchema.safeParse(formData);
+    const result = ValidationSchema.LoginValidator.safeParse(formData);
 
     if (!result.success) {
       const firstError = result.error.issues[0];
