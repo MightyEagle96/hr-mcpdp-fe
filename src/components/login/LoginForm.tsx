@@ -1,7 +1,29 @@
 import { Link } from "react-router-dom";
-import { Checkbox, FormControlLabel, TextField } from "@mui/material";
+
+import Input from "../form/Input";
+import { Lock, Mail } from "lucide-react";
+import PasswordInput from "../form/PasswordInput";
+import { useState } from "react";
+import { dataValidationSchema } from "../../pages/public/dataValidationSchema";
+import { toast } from "sonner";
 
 export default function LoginForm() {
+  const [formData, setFormData] = useState({ email: "", password: "" });
+
+  const loginHandler = (e: React.FormEvent) => {
+    e.preventDefault();
+    const result = dataValidationSchema.safeParse(formData);
+
+    if (!result.success) {
+      const firstError = result.error.issues[0];
+
+      toast.error(firstError.message);
+      console.log(firstError);
+    }
+
+    console.log(formData);
+  };
+
   return (
     <div
       className="
@@ -28,29 +50,29 @@ export default function LoginForm() {
 
       {/* Form */}
 
-      <form className="mt-10 flex flex-col gap-6">
+      <form onSubmit={loginHandler} className="mt-10 flex flex-col gap-6">
         {/* Email */}
 
-        <TextField
-          fullWidth
-          type="email"
+        <Input
           label="Email Address"
-          placeholder="Enter your email address"
+          type="email"
+          icon={<Mail size={18} />}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
         />
 
         {/* Password */}
-
-        <TextField
-          fullWidth
-          type="password"
+        <PasswordInput
           label="Password"
-          placeholder="Enter your password"
+          icon={<Lock size={18} />}
+          onChange={(e) =>
+            setFormData({ ...formData, password: e.target.value })
+          }
         />
 
         {/* Remember Me + Forgot Password */}
 
         <div className="flex items-center justify-between">
-          <FormControlLabel control={<Checkbox />} label="Remember Me" />
+          {/* <FormControlLabel control={<Checkbox />} label="Remember Me" /> */}
 
           <Link
             to="/forgot-password"

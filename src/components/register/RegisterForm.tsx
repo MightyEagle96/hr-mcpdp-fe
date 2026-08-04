@@ -1,5 +1,10 @@
 import { Link } from "react-router-dom";
 import { Checkbox, FormControlLabel, TextField } from "@mui/material";
+import Input from "../form/Input";
+import { IdCard, User } from "lucide-react";
+import Select from "../form/Select";
+import { states } from "../../constants/states";
+import PasswordInput from "../form/PasswordInput";
 
 export default function RegisterForm() {
   return (
@@ -31,50 +36,32 @@ export default function RegisterForm() {
       {/* Form */}
 
       <form className="mt-10 flex flex-col gap-6">
-        <TextField
-          fullWidth
-          label="First Name"
-          placeholder="Enter your first name"
-        />
+        <Input required label="First Name" icon={<User size={18} />} />
 
-        <TextField
-          fullWidth
-          label="Last Name"
-          placeholder="Enter your last name"
-        />
+        <Input required label="Last Name" icon={<User size={18} />} />
 
-        <TextField
-          fullWidth
-          label="Other Names"
-          placeholder="Enter your other names"
-        />
+        <Input label="Other Names" icon={<User size={18} />} />
 
-        <TextField
-          fullWidth
+        <Input
           label="Professional Registration Number"
-          placeholder="Enter your HRORBN Registration Number"
+          icon={<IdCard size={18} />}
         />
 
-        <TextField
-          fullWidth
-          type="email"
-          label="Email Address"
-          placeholder="Enter your email address"
+        <Select
+          label="State of Practice"
+          required
+          options={[
+            { label: "Select State", value: "" },
+            ...states.map((state) => ({
+              label: state.name,
+              value: state.id,
+            })),
+          ]}
         />
 
-        <TextField
-          fullWidth
-          label="Phone Number"
-          placeholder="Enter your phone number"
-        />
+        <PasswordInput label="Password" required />
 
-        <TextField fullWidth select label="State of Practice">
-          {/* States */}
-        </TextField>
-
-        <TextField fullWidth type="password" label="Password" />
-
-        <TextField fullWidth type="password" label="Confirm Password" />
+        <PasswordInput label="Confirm Password" required />
 
         <FormControlLabel
           control={<Checkbox />}

@@ -1,0 +1,45 @@
+export interface State {
+  readonly id: number;
+  readonly name: string;
+  readonly code: string;
+  readonly zoneId: number;
+}
+export const states: State[] = [
+  { id: 1, code: "AB", name: "Abia", zoneId: 4 },
+  { id: 2, code: "AD", name: "Adamawa", zoneId: 2 },
+  { id: 3, code: "AK", name: "Akwa Ibom", zoneId: 5 },
+  { id: 4, code: "AN", name: "Anambra", zoneId: 4 },
+  { id: 5, code: "BA", name: "Bauchi", zoneId: 2 },
+  { id: 6, code: "BY", name: "Bayelsa", zoneId: 5 },
+  { id: 7, code: "BE", name: "Benue", zoneId: 1 },
+  { id: 8, code: "BO", name: "Borno", zoneId: 2 },
+  { id: 9, code: "CR", name: "Cross River", zoneId: 5 },
+  { id: 10, code: "DE", name: "Delta", zoneId: 5 },
+  { id: 11, code: "EB", name: "Ebonyi", zoneId: 4 },
+  { id: 12, code: "ED", name: "Edo", zoneId: 5 },
+  { id: 13, code: "EK", name: "Ekiti", zoneId: 6 },
+  { id: 14, code: "EN", name: "Enugu", zoneId: 4 },
+  { id: 15, code: "FC", name: "Federal Capital Territory", zoneId: 1 },
+  { id: 16, code: "GO", name: "Gombe", zoneId: 2 },
+  { id: 17, code: "IM", name: "Imo", zoneId: 4 },
+  { id: 18, code: "JI", name: "Jigawa", zoneId: 3 },
+  { id: 19, code: "KD", name: "Kaduna", zoneId: 3 },
+  { id: 20, code: "KN", name: "Kano", zoneId: 3 },
+  { id: 21, code: "KT", name: "Katsina", zoneId: 3 },
+  { id: 22, code: "KE", name: "Kebbi", zoneId: 3 },
+  { id: 23, code: "KO", name: "Kogi", zoneId: 1 },
+  { id: 24, code: "KW", name: "Kwara", zoneId: 1 },
+  { id: 25, code: "LA", name: "Lagos", zoneId: 6 },
+  { id: 26, code: "NA", name: "Nasarawa", zoneId: 1 },
+  { id: 27, code: "NI", name: "Niger", zoneId: 1 },
+  { id: 28, code: "OG", name: "Ogun", zoneId: 6 },
+  { id: 29, code: "ON", name: "Ondo", zoneId: 6 },
+  { id: 30, code: "OS", name: "Osun", zoneId: 6 },
+  { id: 31, code: "OY", name: "Oyo", zoneId: 6 },
+  { id: 32, code: "PL", name: "Plateau", zoneId: 1 },
+  { id: 33, code: "RI", name: "Rivers", zoneId: 5 },
+  { id: 34, code: "SO", name: "Sokoto", zoneId: 3 },
+  { id: 35, code: "TA", name: "Taraba", zoneId: 2 },
+  { id: 36, code: "YO", name: "Yobe", zoneId: 2 },
+  { id: 37, code: "ZA", name: "Zamfara", zoneId: 3 },
+];

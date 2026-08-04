@@ -4,6 +4,8 @@ import HomePage from "../pages/public/HomePage";
 import MainLayout from "../components/MainLayout";
 import RegisterPage from "../pages/public/Register/RegisterPage";
 import LoginPage from "../pages/public/Login/LoginPage";
+import NotFoundPage from "../pages/NotFound";
+import UnauthorizedPage from "../pages/UnauthorisedPage";
 
 function MainRoutes() {
   const publicRoutes = [
@@ -20,7 +22,7 @@ function MainRoutes() {
             <Route key={route.path} path={route.path} element={route.element} />
           ))}
 
-          <Route path="*" element={<div>page not found</div>} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
