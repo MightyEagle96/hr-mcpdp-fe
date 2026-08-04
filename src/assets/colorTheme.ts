@@ -1,4 +1,4 @@
-const colorScheme = {
+export const colorScheme = {
   colors: {
     primary: {
       50: "#F9FAFB",

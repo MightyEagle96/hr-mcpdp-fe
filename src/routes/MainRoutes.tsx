@@ -5,11 +5,13 @@ import MainLayout from "../components/MainLayout";
 import RegisterPage from "../pages/public/Register/RegisterPage";
 import LoginPage from "../pages/public/Login/LoginPage";
 import NotFoundPage from "../pages/NotFound";
-import UnauthorizedPage from "../pages/UnauthorisedPage";
+import AdminLoginPage from "../pages/admin/AdminLoginPage";
+//import UnauthorizedPage from "../pages/UnauthorisedPage";
 
 function MainRoutes() {
   const publicRoutes = [
     { path: "/", element: <HomePage /> },
+    { path: "/admin", element: <AdminLoginPage /> },
     { path: "/register", element: <RegisterPage /> },
     { path: "/login", element: <LoginPage /> },
   ];
