@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import Input from "../form/Input";
 import { IdCard, Mail, Phone, ShieldCheck, User } from "lucide-react";
@@ -9,6 +9,9 @@ import { useState } from "react";
 import { ValidationSchema } from "../../pages/public/dataValidationSchema";
 import { toast } from "sonner";
 import FormSection from "../form/FormSection";
+import ReviewRegistrationDialog from "./ReviewRegistrationDialog";
+import { toastError } from "../CustomToast";
+import { httpService } from "../../httpService";
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -16,6 +19,7 @@ export default function RegisterForm() {
     firstName: "",
     lastName: "",
     email: "",
+    phoneNumber: "",
     state: "",
     registrationNumber: "",
     stateOfPracticeId: 0,
@@ -23,6 +27,10 @@ export default function RegisterForm() {
     otherNames: "",
   });
   const [error, setError] = useState(false);
+
+  const [showReview, setShowReview] = useState(false);
+
+  const navigate = useNavigate();
 
   const createAccountHandler = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,10 +41,25 @@ export default function RegisterForm() {
       const firstError = result.error.issues[0];
 
       toast.error(firstError.message);
-      console.log(firstError);
+
+      return;
     }
 
-    //console.log(formData);
+    setShowReview(true);
+  };
+
+  const onConfirm = async () => {
+    try {
+      const { data } = await httpService.post("/candidate", formData);
+      toast.success(data.message);
+      setShowReview(false);
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+    } catch (error) {
+      toastError(error);
+    }
   };
   return (
     <div
@@ -115,7 +138,7 @@ export default function RegisterForm() {
             label="Phone Number"
             icon={<Phone size={18} />}
             onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
+              setFormData({ ...formData, phoneNumber: e.target.value })
             }
           />
         </FormSection>
@@ -258,6 +281,13 @@ export default function RegisterForm() {
           Sign In
         </Link>
       </div>
+
+      <ReviewRegistrationDialog
+        open={showReview}
+        data={formData}
+        onClose={() => setShowReview(false)}
+        onConfirm={onConfirm}
+      />
     </div>
   );
 }
