@@ -8,10 +8,12 @@ import {
   FileText,
   ImageOff,
   Layers3,
+  Plus,
   Trash2,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { httpService } from "../../httpService";
+import AddUnitForm from "./AddUnitForm";
 
 interface Module {
   _id: string;
@@ -23,11 +25,69 @@ interface Module {
   updatedAt: string;
 }
 
+interface Unit {
+  _id: string;
+  module: string;
+  title: string;
+  description: string;
+  content?: string;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
 function ViewModule() {
   const { identifier } = useParams<{ identifier: string }>();
 
   const [module, setModule] = useState<Module | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [units, setUnits] = useState<Unit[]>([]);
+  const [showAddUnit, setShowAddUnit] = useState(false);
+
+  const [unitForm, setUnitForm] = useState({
+    title: "",
+    description: "",
+    content: "",
+  });
+
+  const [isCreatingUnit, setIsCreatingUnit] = useState(false);
+
+  const handleCreateUnit = async (data: {
+    title: string;
+    description: string;
+    content: string;
+    order: number;
+  }) => {
+    if (!identifier) return;
+
+    try {
+      setIsCreatingUnit(true);
+
+      const payload = {
+        module: identifier,
+        title: data.title,
+        description: data.description,
+        content: data.content,
+        order: data.order,
+      };
+
+      console.log("Creating unit:", payload);
+
+      // TODO:
+      // const { data: response } = await httpService.post(
+      //   "/units",
+      //   payload,
+      // );
+
+      // setUnits((prev) => [...prev, response.data]);
+
+      setShowAddUnit(false);
+    } catch (error) {
+      console.error("Failed to create unit:", error);
+    } finally {
+      setIsCreatingUnit(false);
+    }
+  };
 
   const getModule = async () => {
     try {
@@ -224,6 +284,53 @@ function ViewModule() {
           </div>
         </div>
       </div>
+
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        {/* Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+              <Layers3 size={20} />
+            </div>
+
+            <div>
+              <h3 className="font-bold text-slate-900">Learning Content</h3>
+
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                Organize this module into units and topics.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowAddUnit(true)}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#C63C38] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:bg-[#B63431]"
+          >
+            <Plus size={17} />
+            Add Unit
+          </button>
+        </div>
+
+        {/* Add Unit Form */}
+        {showAddUnit && (
+          <AddUnitForm
+            nextOrder={units.length + 1}
+            onCancel={() => setShowAddUnit(false)}
+            onSubmit={handleCreateUnit}
+            isSubmitting={isCreatingUnit}
+          />
+        )}
+
+        {/* Units */}
+        <div className="mt-6 space-y-3">
+          {units.length === 0 ? (
+            <EmptyUnitsState onAddUnit={() => setShowAddUnit(true)} />
+          ) : (
+            units.map((unit) => <UnitCard key={unit._id} unit={unit} />)
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -334,4 +441,78 @@ function formatDate(date: string) {
     month: "short",
     year: "numeric",
   });
+}
+
+function UnitCard({ unit }: { unit: Unit }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 transition-colors hover:bg-slate-50 sm:p-5">
+      <div className="flex items-start gap-4">
+        {/* Order */}
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-sm font-bold text-[#C63C38] shadow-sm">
+          {unit.order}
+        </div>
+
+        {/* Content */}
+        <div className="min-w-0 flex-1">
+          <h4 className="font-bold text-slate-900">{unit.title}</h4>
+
+          <p className="mt-1 text-sm leading-6 text-slate-500">
+            {unit.description}
+          </p>
+
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-xs font-medium text-slate-400">Topics</span>
+
+            <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-500">
+              0
+            </span>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-white hover:text-[#C63C38]"
+            title="Edit unit"
+          >
+            <Edit3 size={16} />
+          </button>
+
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+            title="Delete unit"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EmptyUnitsState({ onAddUnit }: { onAddUnit: () => void }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-12 text-center">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+        <Layers3 size={24} />
+      </div>
+
+      <h4 className="mt-4 font-semibold text-slate-900">No units added yet</h4>
+
+      <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500">
+        Start building this module by adding its first learning unit.
+      </p>
+
+      <button
+        type="button"
+        onClick={onAddUnit}
+        className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#C63C38] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#B63431]"
+      >
+        <Plus size={16} />
+        Add First Unit
+      </button>
+    </div>
+  );
 }
