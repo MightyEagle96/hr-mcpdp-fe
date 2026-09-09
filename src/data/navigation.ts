@@ -4,8 +4,8 @@ export const navigationLinks = [
     path: "/",
   },
   {
-    title: "Courses",
-    path: "/courses",
+    title: "Modules",
+    path: "/modules",
   },
   {
     title: "About",

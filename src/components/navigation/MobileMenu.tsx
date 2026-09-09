@@ -23,9 +23,9 @@ export default function MobileMenu() {
       href: "/",
     },
     {
-      title: "Courses",
+      title: "Modules",
       icon: <BookOpen size={20} />,
-      href: "/courses",
+      href: "/modules",
     },
     {
       title: "About",

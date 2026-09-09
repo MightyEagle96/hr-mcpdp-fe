@@ -2,16 +2,32 @@ import { Lock, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import Input from "../../components/form/Input";
 import PasswordInput from "../../components/form/PasswordInput";
+import { httpService } from "../../httpService";
+import { useState } from "react";
+import { toastError } from "../../components/CustomToast";
 
 export default function LoginForm() {
+  const [loginData, setLoginData] = useState({});
+  const loginHandler = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      await httpService.post("/admin/login_admin_account", loginData);
+
+      window.location.assign("/");
+    } catch (error) {
+      toastError(error);
+    }
+  };
   return (
-    <form className="space-y-6">
+    <form className="space-y-6" onSubmit={loginHandler}>
       <Input
         label="Email Address"
         placeholder="Enter your email address"
         icon={<Mail size={18} />}
         type="email"
         required
+        onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
       />
 
       <PasswordInput
@@ -19,10 +35,13 @@ export default function LoginForm() {
         placeholder="Enter your password"
         icon={<Lock size={18} />}
         required
+        onChange={(e) =>
+          setLoginData({ ...loginData, password: e.target.value })
+        }
       />
 
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-3">
+        {/* <label className="flex items-center gap-3">
           <input
             type="checkbox"
             className="
@@ -36,7 +55,7 @@ export default function LoginForm() {
           />
 
           <span className="text-sm text-slate-600">Remember Me</span>
-        </label>
+        </label> */}
 
         <Link
           to="/admin/forgot-password"
@@ -52,6 +71,7 @@ export default function LoginForm() {
       </div>
 
       <button
+        type="submit"
         className="
           w-full
           rounded-2xl
