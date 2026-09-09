@@ -8,7 +8,6 @@ import {
   FileText,
   ImageOff,
   Layers3,
-  MoreVertical,
   Trash2,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";

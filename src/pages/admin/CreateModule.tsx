@@ -6,7 +6,6 @@ import ConfirmModuleDialog from "./ConfirmModuleDialog";
 import { httpService } from "../../httpService";
 import { toast } from "sonner";
 import { toastError } from "../../components/CustomToast";
-import { set } from "zod";
 
 interface ModuleFormData {
   title: string;

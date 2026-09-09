@@ -1,4 +1,3 @@
-import React from "react";
 import { AlertTriangle, BookOpen, X } from "lucide-react";
 
 interface ConfirmModuleDialogProps {
