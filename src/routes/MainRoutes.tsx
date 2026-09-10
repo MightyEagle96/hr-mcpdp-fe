@@ -13,6 +13,7 @@ import LoadingScreen from "../components/LoadingScreen";
 import CreateModule from "../pages/admin/CreateModule";
 import ModulesPage from "../pages/admin/ModulesPage";
 import ViewModule from "../pages/admin/ViewModule";
+import ViewUnit from "../pages/admin/ViewUnit";
 //import UnauthorizedPage from "../pages/UnauthorisedPage";
 
 function MainRoutes() {
@@ -29,6 +30,7 @@ function MainRoutes() {
     { path: "/modules", element: <ModulesPage /> },
     { path: "/modules/create", element: <CreateModule /> },
     { path: "/modules/view/:identifier", element: <ViewModule /> },
+    { path: "/modules/view/unit/:identifier", element: <ViewUnit /> },
   ];
 
   const candidatePrivateRoutes = [

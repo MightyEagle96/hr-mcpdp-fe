@@ -14,6 +14,8 @@ import {
 import { Link, useParams } from "react-router-dom";
 import { httpService } from "../../httpService";
 import AddUnitForm from "./AddUnitForm";
+import { toast } from "sonner";
+import { toastError } from "../../components/CustomToast";
 
 interface Module {
   _id: string;
@@ -44,12 +46,6 @@ function ViewModule() {
   const [units, setUnits] = useState<Unit[]>([]);
   const [showAddUnit, setShowAddUnit] = useState(false);
 
-  const [unitForm, setUnitForm] = useState({
-    title: "",
-    description: "",
-    content: "",
-  });
-
   const [isCreatingUnit, setIsCreatingUnit] = useState(false);
 
   const handleCreateUnit = async (data: {
@@ -73,6 +69,11 @@ function ViewModule() {
 
       console.log("Creating unit:", payload);
 
+      const response = await httpService.post("unit/create_unit", payload);
+
+      toast.success(response.data.message);
+
+      getUnits();
       // TODO:
       // const { data: response } = await httpService.post(
       //   "/units",
@@ -83,6 +84,7 @@ function ViewModule() {
 
       setShowAddUnit(false);
     } catch (error) {
+      toastError(error);
       console.error("Failed to create unit:", error);
     } finally {
       setIsCreatingUnit(false);
@@ -109,12 +111,22 @@ function ViewModule() {
     }
   };
 
+  const getUnits = async () => {
+    try {
+      const { data } = await httpService.get("unit/find_all_units", {
+        params: { module: identifier },
+      });
+
+      setUnits(data.data);
+    } catch (error) {}
+  };
   useEffect(() => {
     if (identifier) {
       getModule();
+
+      getUnits();
     }
   }, [identifier]);
-
   if (isLoading) {
     return <ViewModuleSkeleton />;
   }
@@ -129,7 +141,7 @@ function ViewModule() {
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <Link
-            to="/admin/modules"
+            to="/modules"
             className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-[#C63C38]"
           >
             <ArrowLeft size={17} />
@@ -445,8 +457,11 @@ function formatDate(date: string) {
 
 function UnitCard({ unit }: { unit: Unit }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 transition-colors hover:bg-slate-50 sm:p-5">
-      <div className="flex items-start gap-4">
+    <div className="group relative rounded-2xl border border-slate-200 bg-slate-50/60 transition-all hover:border-slate-300 hover:bg-slate-50">
+      <Link
+        to={`/modules/view/unit/${unit._id}`}
+        className="flex items-start gap-4 p-4 pr-24 sm:p-5 sm:pr-28"
+      >
         {/* Order */}
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-sm font-bold text-[#C63C38] shadow-sm">
           {unit.order}
@@ -454,7 +469,9 @@ function UnitCard({ unit }: { unit: Unit }) {
 
         {/* Content */}
         <div className="min-w-0 flex-1">
-          <h4 className="font-bold text-slate-900">{unit.title}</h4>
+          <h4 className="font-bold text-slate-900 transition-colors group-hover:text-[#C63C38]">
+            {unit.title}
+          </h4>
 
           <p className="mt-1 text-sm leading-6 text-slate-500">
             {unit.description}
@@ -468,25 +485,25 @@ function UnitCard({ unit }: { unit: Unit }) {
             </span>
           </div>
         </div>
+      </Link>
 
-        {/* Actions */}
-        <div className="flex shrink-0 items-center gap-1">
-          <button
-            type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-white hover:text-[#C63C38]"
-            title="Edit unit"
-          >
-            <Edit3 size={16} />
-          </button>
+      {/* Actions */}
+      <div className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-1">
+        <button
+          type="button"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-white hover:text-[#C63C38]"
+          title="Edit unit"
+        >
+          <Edit3 size={16} />
+        </button>
 
-          <button
-            type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
-            title="Delete unit"
-          >
-            <Trash2 size={16} />
-          </button>
-        </div>
+        <button
+          type="button"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+          title="Delete unit"
+        >
+          <Trash2 size={16} />
+        </button>
       </div>
     </div>
   );
