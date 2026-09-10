@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BookOpen, FileText, Hash, Save, X } from "lucide-react";
+import { BookOpen, FileText, Save, X } from "lucide-react";
 
 interface AddUnitFormProps {
   nextOrder: number;
