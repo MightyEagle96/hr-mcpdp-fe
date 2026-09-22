@@ -15,6 +15,7 @@ import ModulesPage from "../pages/admin/ModulesPage";
 import ViewModule from "../pages/admin/ViewModule";
 import ViewUnit from "../pages/admin/ViewUnit";
 import TopicAuthorPage from "../pages/admin/TopicAuthorPage";
+import UnitAssessment from "../pages/admin/UnitAssessment";
 //import UnauthorizedPage from "../pages/UnauthorisedPage";
 
 function MainRoutes() {
@@ -38,6 +39,10 @@ function MainRoutes() {
     { path: "/modules/create", element: <CreateModule /> },
     { path: "/modules/view/:identifier", element: <ViewModule /> },
     { path: "/modules/view/unit/:identifier", element: <ViewUnit /> },
+    {
+      path: "/modules/:moduleId/units/:unitId/assessment",
+      element: <UnitAssessment />,
+    },
   ];
 
   const candidatePrivateRoutes = [

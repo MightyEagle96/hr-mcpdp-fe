@@ -4,6 +4,7 @@ import {
   BookOpen,
   CalendarDays,
   ChevronRight,
+  ClipboardList,
   Clock3,
   Edit3,
   FileText,
@@ -179,6 +180,14 @@ function ViewUnit() {
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-3">
+          <Link
+            to={`/modules/${unit.module._id}/units/${unit._id}/assessment`}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#242625] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/15 transition-all hover:-translate-y-0.5 hover:bg-[#5D605F]"
+          >
+            <ClipboardList size={17} />
+            Assessment
+          </Link>
+
           <button
             type="button"
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50"
