@@ -58,7 +58,7 @@ function UnitAssessment() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [viewAssessment, setViewAssessment] = useState<string | null>(null);
 
-  const [editAssessment, setEditAssessment] = useState<Assessment | null>(null);
+  const [editAssessment, setEditAssessment] = useState<string | null>(null);
 
   const [deleteAssessment, setDeleteAssessment] =
     useState<DeleteAssessmentProps | null>(null);
@@ -317,7 +317,7 @@ function UnitAssessment() {
                 <div className="mt-5 flex gap-2">
                   <button
                     type="button"
-                    onClick={() => setViewAssessment(assessment)}
+                    onClick={() => setViewAssessment(assessment._id)}
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-700"
                   >
                     <Eye size={16} />
@@ -326,7 +326,7 @@ function UnitAssessment() {
 
                   <button
                     type="button"
-                    onClick={() => setEditAssessment(assessment)}
+                    onClick={() => setEditAssessment(assessment._id)}
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-700"
                   >
                     <Upload size={16} />
@@ -362,7 +362,7 @@ function UnitAssessment() {
       )}
 
       {/* Edit Assessment Modal */}
-      {editAssessment && (
+      {/* {editAssessment && (
         <AssessmentUploadModal
           title="Update Question Bank"
           description="Upload a new Excel file to update this question bank."
@@ -373,7 +373,7 @@ function UnitAssessment() {
             setEditAssessment(null);
           }}
         />
-      )}
+      )} */}
 
       {/* View Questions Modal */}
       {viewAssessment && (
