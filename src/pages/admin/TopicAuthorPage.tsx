@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, BookOpen, ChevronRight, Eye, Save } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { httpService } from "../../httpService";
-import RichTextEditor from "../../components/editor/RichTextEditor";
+
 import TopicEditor from "../../components/editor/TopicEditor";
 import { toast } from "sonner";
 import { toastError } from "../../components/CustomToast";
