@@ -14,20 +14,20 @@ import { httpService } from "../../httpService";
 import { toastError } from "../../components/CustomToast";
 import { toast } from "sonner";
 
-interface Question {
-  question: string;
-  answer: string;
-  options: string[];
-}
+// interface Question {
+//   question: string;
+//   answer: string;
+//   options: string[];
+// }
 
-interface Assessment {
-  _id: string;
-  module: string;
-  unit: string;
-  questions: Question[];
-  createdAt: string;
-  updatedAt: string;
-}
+// interface Assessment {
+//   _id: string;
+//   module: string;
+//   unit: string;
+//   questions: Question[];
+//   createdAt: string;
+//   updatedAt: string;
+// }
 
 interface Statistics {
   totalBanks: number;
@@ -362,18 +362,18 @@ function UnitAssessment() {
       )}
 
       {/* Edit Assessment Modal */}
-      {/* {editAssessment && (
+      {editAssessment && (
         <AssessmentUploadModal
           title="Update Question Bank"
           description="Upload a new Excel file to update this question bank."
           onClose={() => setEditAssessment(null)}
           onSubmit={(file) => {
-            console.log("Update assessment:", editAssessment._id, file);
+            console.log("Update assessment:", editAssessment, file);
 
             setEditAssessment(null);
           }}
         />
-      )} */}
+      )}
 
       {/* View Questions Modal */}
       {viewAssessment && (
