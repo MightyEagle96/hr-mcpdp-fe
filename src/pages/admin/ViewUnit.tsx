@@ -11,8 +11,10 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { httpService } from "../../httpService";
+import AddTopicModal from "./AddTopicModal";
+import { toastError } from "../../components/CustomToast";
 
 interface Module {
   _id: string;
@@ -29,12 +31,40 @@ interface Unit {
   createdAt: string;
   updatedAt: string;
 }
+interface Topic {
+  _id: string;
+  module: string;
+  unit: string;
+  topic: string;
+  content: string;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 function ViewUnit() {
   const { identifier } = useParams<{ identifier: string }>();
 
   const [unit, setUnit] = useState<Unit | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAddTopicModal, setShowAddTopicModal] = useState(false);
+  const [isAddingTopic, setIsAddingTopic] = useState(false);
+
+  const [topics, setTopics] = useState<Topic[]>([]);
+
+  const navigate = useNavigate();
+
+  const getTopics = async () => {
+    try {
+      const { data } = await httpService.get(
+        `/topic/find_topics/${identifier}`,
+      );
+
+      setTopics(data.data);
+    } catch (error) {
+      toastError(error);
+    }
+  };
 
   const getUnit = async () => {
     try {
@@ -43,8 +73,6 @@ function ViewUnit() {
       // TODO: Connect to API
       //
       const { data } = await httpService.get(`/unit/find_unit/${identifier}`);
-
-      console.log(data);
 
       setUnit(data.data);
       console.log("Fetching unit:", identifier);
@@ -58,6 +86,8 @@ function ViewUnit() {
   useEffect(() => {
     if (identifier) {
       getUnit();
+
+      getTopics();
     }
   }, [identifier]);
 
@@ -69,6 +99,32 @@ function ViewUnit() {
     return <UnitNotFound />;
   }
 
+  const handleCreateTopic = async (topic: string) => {
+    try {
+      setIsAddingTopic(true);
+
+      const response = await httpService.post("/topic/create_topic", {
+        module: unit.module._id,
+        unit: unit._id,
+        topic,
+      });
+
+      if (response.data.success) {
+        setTopics((current: any) => [...current, response.data.data]);
+
+        setShowAddTopicModal(false);
+      }
+    } catch (error) {
+      toastError(error);
+      console.error("Failed to create topic:", error);
+    } finally {
+      setIsAddingTopic(false);
+    }
+  };
+
+  const handleTopicClick = (topic: Topic) => {
+    navigate(`/modules/${unit.module._id}/${unit._id}/${topic._id}/author`);
+  };
   return (
     <div className="space-y-6 px-4 sm:px-6 lg:px-8">
       {/* Breadcrumb */}
@@ -162,35 +218,79 @@ function ViewUnit() {
 
             <button
               type="button"
+              onClick={() => setShowAddTopicModal(true)}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#C63C38] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:bg-[#B63431]"
             >
               <Plus size={17} />
               Add Topic
             </button>
+
+            <AddTopicModal
+              open={showAddTopicModal}
+              onClose={() => setShowAddTopicModal(false)}
+              onSubmit={handleCreateTopic}
+              isSubmitting={isAddingTopic}
+            />
           </div>
 
           {/* Empty Topics */}
-          <div className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-14 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
-              <FileText size={24} />
+          {topics.length === 0 && (
+            <div className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-14 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+                <FileText size={24} />
+              </div>
+
+              <h3 className="mt-4 font-semibold text-slate-900">
+                No topics added yet
+              </h3>
+
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+                Start building this unit by adding the topics that learners will
+                study.
+              </p>
+
+              <button
+                type="button"
+                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#C63C38] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#B63431]"
+              >
+                <Plus size={16} />
+                Add First Topic
+              </button>
             </div>
+          )}
 
-            <h3 className="mt-4 font-semibold text-slate-900">
-              No topics added yet
-            </h3>
+          {/* Topics List */}
+          {/* Topics List */}
+          <div className="mt-6 space-y-3">
+            {topics.map((topic, index) => (
+              <button
+                key={topic._id}
+                type="button"
+                onClick={() => handleTopicClick(topic)}
+                className="group flex w-full items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left transition-all hover:border-[#C63C38]/30 hover:bg-[#C63C38]/[0.02] hover:shadow-sm"
+              >
+                {/* Order */}
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-sm font-bold text-slate-500 transition-colors group-hover:bg-[#C63C38]/10 group-hover:text-[#C63C38]">
+                  {String(index + 1).padStart(2, "0")}
+                </div>
 
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-              Start building this unit by adding the topics that learners will
-              study.
-            </p>
+                {/* Topic Icon */}
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#C63C38]/10 text-[#C63C38]">
+                  <FileText size={20} />
+                </div>
 
-            <button
-              type="button"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#C63C38] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#B63431]"
-            >
-              <Plus size={16} />
-              Add First Topic
-            </button>
+                {/* Topic */}
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-slate-900">
+                    {topic.topic}
+                  </h3>
+
+                  <p className="mt-1 text-xs text-slate-400">
+                    Topic {index + 1}
+                  </p>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 

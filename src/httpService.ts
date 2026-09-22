@@ -57,7 +57,7 @@ httpService.interceptors.response.use(
 
       try {
         // Try refresh
-        await httpService.get("/applicants/refreshtoken"); // 🚨 Make sure this matches your backend
+        await httpService.get("/auth/refreshtoken"); // 🚨 Make sure this matches your backend
 
         processQueue(null);
         return httpService(originalRequest);

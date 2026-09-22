@@ -14,6 +14,7 @@ import CreateModule from "../pages/admin/CreateModule";
 import ModulesPage from "../pages/admin/ModulesPage";
 import ViewModule from "../pages/admin/ViewModule";
 import ViewUnit from "../pages/admin/ViewUnit";
+import TopicAuthorPage from "../pages/admin/TopicAuthorPage";
 //import UnauthorizedPage from "../pages/UnauthorisedPage";
 
 function MainRoutes() {
@@ -27,7 +28,13 @@ function MainRoutes() {
 
   const adminPrivateRoutes = [
     { path: "/", element: <AdminDashboard /> },
+
+    //modules
     { path: "/modules", element: <ModulesPage /> },
+    {
+      path: "/modules/:moduleId/:unitId/:topicId/author",
+      element: <TopicAuthorPage />,
+    },
     { path: "/modules/create", element: <CreateModule /> },
     { path: "/modules/view/:identifier", element: <ViewModule /> },
     { path: "/modules/view/unit/:identifier", element: <ViewUnit /> },

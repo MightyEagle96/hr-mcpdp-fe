@@ -11,6 +11,7 @@
     "copy-build": "cpx \"dist/**/*\" ../backend/dist/build"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-react": "^11.2.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^5.4.0",
@@ -19,8 +20,13 @@
     "@mui/x-data-grid": "^9.10.1",
     "@mui/x-date-pickers": "^9.8.0",
     "@tailwindcss/vite": "^4.3.2",
+    "@tiptap/extension-image": "^3.31.3",
+    "@tiptap/extension-link": "^3.31.3",
+    "@tiptap/react": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
     "axios": "^1.18.1",
     "browser-image-compression": "^2.0.2",
+    "ckeditor5": "^48.5.1",
     "dayjs": "^1.11.21",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.42.2",
