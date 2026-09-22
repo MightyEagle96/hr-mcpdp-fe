@@ -2,19 +2,22 @@ import {
   ClipboardList,
   Eye,
   FileSpreadsheet,
+  FileText,
   Plus,
   Trash2,
   Upload,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { httpService } from "../../httpService";
+import { toastError } from "../../components/CustomToast";
+import { toast } from "sonner";
 
 interface Question {
   question: string;
   answer: string;
   options: string[];
-  explanation: string;
 }
 
 interface Assessment {
@@ -26,49 +29,78 @@ interface Assessment {
   updatedAt: string;
 }
 
-const sampleAssessments: Assessment[] = [
-  {
-    _id: "1",
-    module: "module-1",
-    unit: "unit-1",
-    createdAt: "2026-09-22T08:30:00.000Z",
-    updatedAt: "2026-09-22T08:30:00.000Z",
-    questions: Array.from({ length: 50 }, (_, index) => ({
-      question: `Sample assessment question ${index + 1}`,
-      answer: "Option A",
-      options: ["Option A", "Option B", "Option C", "Option D"],
-      explanation: "Explanation for this question.",
-    })),
-  },
-  {
-    _id: "2",
-    module: "module-1",
-    unit: "unit-1",
-    createdAt: "2026-09-18T10:15:00.000Z",
-    updatedAt: "2026-09-18T10:15:00.000Z",
-    questions: Array.from({ length: 100 }, (_, index) => ({
-      question: `Another assessment question ${index + 1}`,
-      answer: "Option B",
-      options: ["Option A", "Option B", "Option C", "Option D"],
-      explanation: "Explanation for this question.",
-    })),
-  },
-];
+interface Statistics {
+  totalBanks: number;
+  totalQuestions: number;
+  banks: { _id: string; questionCount: number; createdAt: string }[];
+}
 
+interface AssessmentQuestion {
+  question: string;
+  answer: string;
+  options: string[];
+  explanation: string;
+}
+
+interface DeleteAssessmentProps {
+  _id: string;
+  questionCount: number;
+}
 function UnitAssessment() {
   const { moduleId, unitId } = useParams();
 
-  const [assessments, setAssessments] =
-    useState<Assessment[]>(sampleAssessments);
+  const [statistics, setStatistics] = useState<Statistics>({
+    totalBanks: 0,
+    totalQuestions: 0,
+    banks: [],
+  });
 
   const [showAddModal, setShowAddModal] = useState(false);
-  const [viewAssessment, setViewAssessment] = useState<Assessment | null>(null);
+  const [viewAssessment, setViewAssessment] = useState<string | null>(null);
 
   const [editAssessment, setEditAssessment] = useState<Assessment | null>(null);
 
-  const [deleteAssessment, setDeleteAssessment] = useState<Assessment | null>(
-    null,
-  );
+  const [deleteAssessment, setDeleteAssessment] =
+    useState<DeleteAssessmentProps | null>(null);
+
+  const [questions, setQuestions] = useState<AssessmentQuestion[]>([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
+
+  const getAssessmentQuestions = async (assessmentId: string) => {
+    try {
+      setViewAssessment(assessmentId);
+      setLoadingQuestions(true);
+      setQuestions([]);
+
+      const { data } = await httpService.get(
+        `/assessment/view_questions/${assessmentId}`,
+      );
+
+      setQuestions(data);
+
+      setLoadingQuestions(false);
+      //setQuestions(data.data)
+    } catch (error) {
+      toastError(error);
+    }
+  };
+
+  const getAssessmentStats = async () => {
+    try {
+      const { data } = await httpService.post(
+        "/assessment/view_assessment_stats",
+        { module: moduleId, unit: unitId },
+      );
+
+      setStatistics(data.data);
+    } catch (error) {
+      toastError(error);
+    }
+  };
+
+  useEffect(() => {
+    getAssessmentStats();
+  }, [moduleId, unitId]);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -146,7 +178,7 @@ function UnitAssessment() {
             </p>
 
             <p className="mt-2 text-3xl font-bold text-slate-900">
-              {assessments.length}
+              {statistics.totalBanks}
             </p>
           </div>
 
@@ -156,10 +188,7 @@ function UnitAssessment() {
             </p>
 
             <p className="mt-2 text-3xl font-bold text-slate-900">
-              {assessments.reduce(
-                (total, assessment) => total + assessment.questions.length,
-                0,
-              )}
+              {statistics.totalQuestions}
             </p>
           </div>
         </div>
@@ -190,7 +219,7 @@ function UnitAssessment() {
               </thead>
 
               <tbody className="divide-y divide-slate-100">
-                {assessments.map((assessment, index) => (
+                {statistics.banks.map((assessment, index) => (
                   <tr
                     key={assessment._id}
                     className="transition-colors hover:bg-slate-50/70"
@@ -219,7 +248,7 @@ function UnitAssessment() {
 
                     <td className="px-6 py-5">
                       <span className="inline-flex rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">
-                        {assessment.questions.length} Questions
+                        {assessment.questionCount} Questions
                       </span>
                     </td>
 
@@ -227,7 +256,7 @@ function UnitAssessment() {
                       <div className="flex justify-end gap-2">
                         <button
                           type="button"
-                          onClick={() => setViewAssessment(assessment)}
+                          onClick={() => getAssessmentQuestions(assessment._id)}
                           className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                         >
                           <Eye size={16} />
@@ -236,7 +265,7 @@ function UnitAssessment() {
 
                         <button
                           type="button"
-                          onClick={() => setEditAssessment(assessment)}
+                          onClick={() => setEditAssessment(assessment._id)}
                           className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                         >
                           <Upload size={16} />
@@ -261,7 +290,7 @@ function UnitAssessment() {
 
           {/* Mobile */}
           <div className="divide-y divide-slate-100 md:hidden">
-            {assessments.map((assessment, index) => (
+            {statistics.banks.map((assessment, index) => (
               <div key={assessment._id} className="p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
@@ -281,7 +310,7 @@ function UnitAssessment() {
                   </div>
 
                   <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
-                    {assessment.questions.length}
+                    {assessment.questionCount} Questions
                   </span>
                 </div>
 
@@ -325,6 +354,7 @@ function UnitAssessment() {
           description="Upload an Excel file containing the questions for this question bank."
           onClose={() => setShowAddModal(false)}
           onSubmit={(file) => {
+            getAssessmentStats();
             console.log("Add assessment:", file);
             setShowAddModal(false);
           }}
@@ -347,10 +377,155 @@ function UnitAssessment() {
 
       {/* View Questions Modal */}
       {viewAssessment && (
-        <ViewQuestionsModal
-          assessment={viewAssessment}
-          onClose={() => setViewAssessment(null)}
-        />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+          <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">
+                  Assessment Questions
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  {loadingQuestions
+                    ? "Loading questions..."
+                    : `${questions.length} question${
+                        questions.length === 1 ? "" : "s"
+                      }`}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setViewAssessment(null);
+                  setQuestions([]);
+                }}
+                className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto bg-slate-50 p-6">
+              {loadingQuestions ? (
+                <div className="flex min-h-[300px] items-center justify-center">
+                  <div className="text-sm font-medium text-slate-500">
+                    Loading questions...
+                  </div>
+                </div>
+              ) : questions.length === 0 ? (
+                <div className="flex min-h-[300px] items-center justify-center">
+                  <div className="text-center">
+                    <FileText size={32} className="mx-auto text-slate-300" />
+
+                    <p className="mt-3 font-semibold text-slate-700">
+                      No questions found
+                    </p>
+
+                    <p className="mt-1 text-sm text-slate-500">
+                      This question bank does not contain any questions.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {questions.map((item, index) => (
+                    <div
+                      key={`${viewAssessment}-${index}`}
+                      className="rounded-2xl border border-slate-200 bg-white p-5"
+                    >
+                      {/* Question */}
+                      <div className="flex gap-4">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#C63C38]/10 text-xs font-bold text-[#C63C38]">
+                          {index + 1}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold leading-6 text-slate-900">
+                            {item.question}
+                          </p>
+
+                          {/* Options */}
+                          <div className="mt-4 grid gap-2">
+                            {item.options.map((option, optionIndex) => {
+                              const letter = String.fromCharCode(
+                                65 + optionIndex,
+                              );
+
+                              const isCorrect =
+                                item.answer === letter ||
+                                item.answer === option;
+
+                              return (
+                                <div
+                                  key={optionIndex}
+                                  className={`flex items-start gap-3 rounded-xl border px-4 py-3 ${
+                                    isCorrect
+                                      ? "border-emerald-200 bg-emerald-50"
+                                      : "border-slate-100 bg-slate-50"
+                                  }`}
+                                >
+                                  <span
+                                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
+                                      isCorrect
+                                        ? "bg-emerald-100 text-emerald-700"
+                                        : "bg-white text-slate-500"
+                                    }`}
+                                  >
+                                    {letter}
+                                  </span>
+
+                                  <span
+                                    className={`pt-1 text-sm ${
+                                      isCorrect
+                                        ? "font-semibold text-emerald-800"
+                                        : "text-slate-600"
+                                    }`}
+                                  >
+                                    {option}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {/* Explanation */}
+                          {item.explanation && (
+                            <div className="mt-4 rounded-xl bg-blue-50 px-4 py-3">
+                              <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
+                                Explanation
+                              </p>
+
+                              <p className="mt-1 text-sm leading-6 text-blue-900">
+                                {item.explanation}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end border-t border-slate-200 bg-white px-6 py-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setViewAssessment(null);
+                  setQuestions([]);
+                }}
+                className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Delete Modal */}
@@ -358,10 +533,16 @@ function UnitAssessment() {
         <DeleteAssessmentModal
           assessment={deleteAssessment}
           onClose={() => setDeleteAssessment(null)}
-          onConfirm={() => {
-            setAssessments((current) =>
-              current.filter((item) => item._id !== deleteAssessment._id),
-            );
+          onConfirm={async () => {
+            try {
+              await httpService.delete(
+                `/assessment/delete_assessment/${deleteAssessment._id}`,
+              );
+              getAssessmentStats();
+              toast.success("Assessment deleted successfully");
+            } catch (error) {
+              toastError(error);
+            }
 
             setDeleteAssessment(null);
           }}
@@ -392,6 +573,7 @@ function AssessmentUploadModal({
   onClose,
   onSubmit,
 }: AssessmentUploadModalProps) {
+  const { moduleId, unitId } = useParams();
   const [file, setFile] = useState<File | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -402,12 +584,34 @@ function AssessmentUploadModal({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!file) return;
 
-    onSubmit(file);
-  };
+    try {
+      const formData = new FormData();
 
+      formData.append("file", file);
+      formData.append("module", moduleId || "");
+      formData.append("unit", unitId || "");
+
+      const response = await httpService.post(
+        "/assessment/create_assessment",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      console.log("Assessment created:", response.data);
+
+      onSubmit(file);
+    } catch (error) {
+      console.error("Failed to create assessment:", error);
+      toastError(error);
+    }
+  };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 backdrop-blur-sm">
       <div className="w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-2xl">
@@ -466,12 +670,12 @@ function AssessmentUploadModal({
             <div className="mt-3 flex flex-wrap gap-2">
               {[
                 "question",
-                "answer",
+
                 "option 1",
                 "option 2",
                 "option 3",
                 "option 4",
-                "explanation",
+                "answer",
               ].map((column) => (
                 <span
                   key={column}
@@ -508,112 +712,8 @@ function AssessmentUploadModal({
   );
 }
 
-interface ViewQuestionsModalProps {
-  assessment: Assessment;
-  onClose: () => void;
-}
-
-function ViewQuestionsModal({ assessment, onClose }: ViewQuestionsModalProps) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 py-6 backdrop-blur-sm">
-      <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
-        {/* Header */}
-        <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-6 py-5">
-          <div>
-            <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold text-slate-900">
-                Question Bank
-              </h2>
-
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
-                {assessment.questions.length} Questions
-              </span>
-            </div>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Created {formatDate(assessment.createdAt)}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Questions */}
-        <div className="overflow-y-auto p-6">
-          <div className="space-y-4">
-            {assessment.questions.map((question, index) => (
-              <div
-                key={index}
-                className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#242625] text-xs font-bold text-white">
-                    {index + 1}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold leading-6 text-slate-900">
-                      {question.question}
-                    </p>
-
-                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                      {question.options.map((option, optionIndex) => (
-                        <div
-                          key={optionIndex}
-                          className={`rounded-xl border px-3 py-2.5 text-sm ${
-                            option === question.answer
-                              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                              : "border-slate-200 bg-white text-slate-600"
-                          }`}
-                        >
-                          <span className="mr-2 font-bold">
-                            {String.fromCharCode(65 + optionIndex)}.
-                          </span>
-
-                          {option}
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3">
-                      <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                        Explanation
-                      </p>
-
-                      <p className="mt-1 text-sm leading-6 text-slate-600">
-                        {question.explanation}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex shrink-0 justify-end border-t border-slate-100 bg-slate-50/70 px-6 py-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl bg-[#242625] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#5D605F]"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 interface DeleteAssessmentModalProps {
-  assessment: Assessment;
+  assessment: DeleteAssessmentProps;
   onClose: () => void;
   onConfirm: () => void;
 }
@@ -637,7 +737,7 @@ function DeleteAssessmentModal({
         <p className="mt-2 text-sm leading-6 text-slate-500">
           This will permanently delete this question bank and its{" "}
           <strong className="text-slate-700">
-            {assessment.questions.length} questions
+            {assessment.questionCount} questions
           </strong>
           . This action cannot be undone.
         </p>
