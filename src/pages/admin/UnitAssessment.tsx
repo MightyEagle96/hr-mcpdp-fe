@@ -108,7 +108,7 @@ function UnitAssessment() {
         {/* Breadcrumb */}
         <div className="mb-6 flex flex-wrap items-center gap-2 text-sm text-slate-500">
           <Link
-            to="/admin/modules"
+            to="/modules"
             className="transition-colors hover:text-[#C63C38]"
           >
             Modules
@@ -117,7 +117,7 @@ function UnitAssessment() {
           <span>/</span>
 
           <Link
-            to={`/admin/modules/${moduleId}`}
+            to={`/modules/view/${moduleId}`}
             className="transition-colors hover:text-[#C63C38]"
           >
             Module
@@ -126,7 +126,7 @@ function UnitAssessment() {
           <span>/</span>
 
           <Link
-            to={`/admin/modules/${moduleId}/units/${unitId}`}
+            to={`/modules/view/unit/${unitId}`}
             className="transition-colors hover:text-[#C63C38]"
           >
             Unit

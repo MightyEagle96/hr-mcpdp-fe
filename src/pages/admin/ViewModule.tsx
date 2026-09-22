@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   BookOpen,
   CalendarDays,
+  ClipboardCheck,
   Clock3,
   Edit3,
   FileText,
@@ -138,7 +139,8 @@ function ViewModule() {
   return (
     <div className="space-y-6 px-4 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        {/* Page Heading */}
         <div>
           <Link
             to="/modules"
@@ -149,7 +151,7 @@ function ViewModule() {
           </Link>
 
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#C63C38]/10 text-[#C63C38]">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#C63C38]/10 text-[#C63C38]">
               <BookOpen size={21} />
             </div>
 
@@ -166,22 +168,46 @@ function ViewModule() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-3">
-          <Link
-            to={`/admin/modules/${module._id}/edit`}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50"
-          >
-            <Edit3 size={17} />
-            Edit Module
-          </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Module Actions */}
+          <div className="flex items-center gap-3">
+            <Link
+              to={`/admin/modules/${module._id}/edit`}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50"
+            >
+              <Edit3 size={17} />
+              Edit Module
+            </Link>
 
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 shadow-sm transition-all hover:bg-red-50"
-          >
-            <Trash2 size={17} />
-            Delete
-          </button>
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 shadow-sm transition-all hover:bg-red-50"
+            >
+              <Trash2 size={17} />
+              Delete
+            </button>
+          </div>
+
+          {/* Assessment Actions */}
+          <div className="h-8 w-px bg-slate-200" />
+
+          <div className="flex items-center gap-3">
+            <Link
+              to={`/modules/pretest/${module._id}`}
+              className="inline-flex items-center gap-2 rounded-xl border border-[#C63C38]/20 bg-[#C63C38]/5 px-4 py-2.5 text-sm font-semibold text-[#C63C38] shadow-sm transition-all hover:bg-[#C63C38]/10"
+            >
+              <ClipboardCheck size={17} />
+              Pre-Test
+            </Link>
+
+            <Link
+              to={`/modules/posttest/${module._id}`}
+              className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 shadow-sm transition-all hover:bg-emerald-100"
+            >
+              <ClipboardCheck size={17} />
+              Post-Test
+            </Link>
+          </div>
         </div>
       </div>
 
