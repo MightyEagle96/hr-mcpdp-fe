@@ -7,7 +7,7 @@ import LoginPage from "../pages/public/Login/LoginPage";
 import NotFoundPage from "../pages/NotFound";
 import AdminLoginPage from "../pages/admin/AdminLoginPage";
 import AdminDashboard from "../pages/admin/AdminDashboard";
-import CandidateDashboard from "../pages/private/CandidateDashboard";
+import CandidateDashboard from "../pages/candidate/CandidateDashboard";
 import { useAuth } from "../hooks/useAuth";
 import LoadingScreen from "../components/LoadingScreen";
 import CreateModule from "../pages/admin/CreateModule";
@@ -18,9 +18,10 @@ import TopicAuthorPage from "../pages/admin/TopicAuthorPage";
 import UnitAssessment from "../pages/admin/UnitAssessment";
 import ModulePreTest from "../pages/admin/ModulePreTest";
 import ModulePostTest from "../pages/admin/ModulePostTest";
-import ModulesDisplay from "../pages/private/ModulesDisplay";
-import ModulePurchase from "../pages/private/ModulePurchase";
-import MyModules from "../pages/private/MyModules";
+import ModulesDisplay from "../pages/candidate/ModulesDisplay";
+import ModulePurchase from "../pages/candidate/ModulePurchase";
+import MyModules from "../pages/candidate/MyModules";
+import ModulePretest from "../pages/candidate/ModulePrettest";
 //import UnauthorizedPage from "../pages/UnauthorisedPage";
 
 function MainRoutes() {
@@ -57,6 +58,9 @@ function MainRoutes() {
     { path: "/modules", element: <ModulesDisplay /> },
     { path: "/mymodules", element: <MyModules /> },
     { path: "/modules/purchase/:id", element: <ModulePurchase /> },
+
+    //the module proper
+    { path: "/module/pretest/:id", element: <ModulePretest /> },
   ];
 
   const privateRouteToShow =

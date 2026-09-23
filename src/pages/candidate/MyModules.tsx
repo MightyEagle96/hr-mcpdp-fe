@@ -2,6 +2,7 @@ import {
   ArrowRight,
   BookOpen,
   CheckCircle2,
+  ClipboardCheck,
   Clock3,
   GraduationCap,
   PackageOpen,
@@ -32,6 +33,14 @@ interface ModulePurchase {
   purchasedAt: string;
   createdAt: string;
   updatedAt: string;
+  progress: {
+    action: { label: string; route: string };
+    completed: boolean;
+    contentCompleted: boolean;
+    posttestTaken: boolean;
+    pretestTaken: boolean;
+    progressPercentage: number;
+  };
 }
 
 function MyModules() {
@@ -44,6 +53,7 @@ function MyModules() {
 
       const { data } = await httpService.get("/modulepurchase/my-modules");
 
+      //console.log(data.data);
       setPurchases(data.data);
     } catch (error) {
       console.error("Failed to fetch purchased modules:", error);
@@ -155,10 +165,10 @@ interface MyModuleCardProps {
 
 function MyModuleCard({ purchase }: MyModuleCardProps) {
   const { module } = purchase;
+  const { progress } = purchase;
 
   // Temporary demo progress.
   // This will eventually come from the candidate's learning progress.
-  const progress = 0;
 
   return (
     <article className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
@@ -178,11 +188,38 @@ function MyModuleCard({ purchase }: MyModuleCardProps) {
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-        {/* Purchased badge */}
+        {/* Status Badge */}
         <div className="absolute left-4 top-4">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-emerald-700 shadow-sm backdrop-blur-sm">
-            <CheckCircle2 size={13} />
-            Purchased
+          <span
+            className={`
+          inline-flex items-center gap-1.5 rounded-full
+          px-3 py-1.5 text-[11px] font-bold uppercase
+          tracking-wide shadow-sm backdrop-blur-sm
+          ${
+            progress.completed
+              ? "bg-white/95 text-emerald-700"
+              : progress.pretestTaken
+                ? "bg-white/95 text-[#C63C38]"
+                : "bg-white/95 text-slate-700"
+          }
+        `}
+          >
+            {progress.completed ? (
+              <>
+                <CheckCircle2 size={13} />
+                Completed
+              </>
+            ) : progress.pretestTaken ? (
+              <>
+                <BookOpen size={13} />
+                Learning
+              </>
+            ) : (
+              <>
+                <ClipboardCheck size={13} />
+                Pretest Pending
+              </>
+            )}
           </span>
         </div>
 
@@ -212,17 +249,50 @@ function MyModuleCard({ purchase }: MyModuleCardProps) {
             </span>
 
             <span className="text-xs font-bold text-[#242625]">
-              {progress}%
+              {progress.progressPercentage}%
             </span>
           </div>
 
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
             <div
-              className="h-full rounded-full bg-[#C63C38] transition-all"
+              className="h-full rounded-full bg-[#C63C38] transition-all duration-500"
               style={{
-                width: `${progress}%`,
+                width: `${progress.progressPercentage}%`,
               }}
             />
+          </div>
+        </div>
+
+        {/* Learning State */}
+        <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                Current Stage
+              </p>
+
+              <p className="mt-1 text-sm font-semibold text-slate-800">
+                {progress.completed
+                  ? "Module completed"
+                  : !progress.pretestTaken
+                    ? "Pretest"
+                    : progress.contentCompleted && !progress.posttestTaken
+                      ? "Posttest"
+                      : "Learning"}
+              </p>
+            </div>
+
+            {progress.pretestTaken && (
+              <div className="text-right">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  Pretest
+                </p>
+
+                {/* <p className="mt-1 text-sm font-bold text-[#242625]">
+                  {progress.pretestScore ?? 0}%
+                </p> */}
+              </div>
+            )}
           </div>
         </div>
 
@@ -245,20 +315,29 @@ function MyModuleCard({ purchase }: MyModuleCardProps) {
 
         {/* Action */}
         <Link
-          to={`/candidate/modules/${module._id}`}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#242625] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-[#5D605F]"
+          to={progress.action.route}
+          className={`
+        mt-5 flex w-full items-center justify-center gap-2
+        rounded-xl px-4 py-3 text-sm font-semibold text-white
+        transition-all
+        ${
+          progress.completed
+            ? "bg-emerald-600 hover:bg-emerald-700"
+            : "bg-[#242625] hover:bg-[#5D605F]"
+        }
+      `}
         >
-          {progress > 0 ? (
-            <>
-              <PlayCircle size={17} />
-              Continue Learning
-            </>
+          {progress.completed ? (
+            <CheckCircle2 size={17} />
+          ) : !progress.pretestTaken ? (
+            <ClipboardCheck size={17} />
+          ) : progress.contentCompleted && !progress.posttestTaken ? (
+            <ClipboardCheck size={17} />
           ) : (
-            <>
-              <BookOpen size={17} />
-              Start Learning
-            </>
+            <PlayCircle size={17} />
           )}
+
+          {progress.action.label}
 
           <ArrowRight size={16} />
         </Link>
@@ -310,7 +389,7 @@ function EmptyModules() {
       </p>
 
       <Link
-        to="/candidate/modules"
+        to="/modules"
         className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#C63C38] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:bg-[#B63431]"
       >
         <GraduationCap size={17} />
