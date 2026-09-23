@@ -7,16 +7,33 @@ export const navigationLinks = [
     title: "Modules",
     path: "/modules",
   },
+
+  // {
+  //   title: "About",
+  //   path: "/about",
+  // },
+  // {
+  //   title: "FAQs",
+  //   path: "/faqs",
+  // },
+  // {
+  //   title: "Contact",
+  //   path: "/contact",
+  // },
+];
+
+export const candidateNavigationLinks = [
   {
-    title: "About",
-    path: "/about",
+    title: "Home",
+    path: "/",
   },
   {
-    title: "FAQs",
-    path: "/faqs",
+    title: "Modules",
+    path: "/modules",
   },
+
   {
-    title: "Contact",
-    path: "/contact",
+    title: "My Modules",
+    path: "/mymodules",
   },
 ];

@@ -7,11 +7,13 @@ import { useState } from "react";
 
 import { toast } from "sonner";
 import { ValidationSchema } from "../../pages/public/dataValidationSchema";
+import { httpService } from "../../httpService";
+import { toastError } from "../CustomToast";
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({ email: "", password: "" });
 
-  const loginHandler = (e: React.FormEvent) => {
+  const loginHandler = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = ValidationSchema.LoginValidator.safeParse(formData);
 
@@ -19,7 +21,13 @@ export default function LoginForm() {
       const firstError = result.error.issues[0];
 
       toast.error(firstError.message);
-      console.log(firstError);
+    }
+
+    try {
+      await httpService.post("/candidate/login", formData);
+      window.location.assign("/");
+    } catch (error) {
+      toastError(error);
     }
 
     console.log(formData);

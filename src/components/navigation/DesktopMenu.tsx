@@ -1,10 +1,18 @@
 import { NavLink } from "react-router-dom";
-import { navigationLinks } from "../../data/navigation";
+import {
+  candidateNavigationLinks,
+  navigationLinks,
+} from "../../data/navigation";
+import { useAppUser } from "../../context/AppUserContext";
 
 export default function DesktopMenu() {
+  const { user } = useAppUser();
+
+  const navLinks =
+    user?.role === "candidate" ? candidateNavigationLinks : navigationLinks;
   return (
     <nav className="hidden lg:flex items-center gap-10">
-      {navigationLinks.map((item) => (
+      {navLinks.map((item) => (
         <NavLink
           key={item.path}
           to={item.path}

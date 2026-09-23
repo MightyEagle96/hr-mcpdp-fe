@@ -6,15 +6,18 @@ import {
   X,
   House,
   BookOpen,
-  Info,
-  CircleHelp,
-  Phone,
+  // Info,
+  // CircleHelp,
+  // Phone,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import AuthButtons from "./AuthButtons";
+import { useAppUser } from "../../context/AppUserContext";
 
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
+
+  const { user } = useAppUser();
 
   const links = [
     {
@@ -27,22 +30,56 @@ export default function MobileMenu() {
       icon: <BookOpen size={20} />,
       href: "/modules",
     },
-    {
-      title: "About",
-      icon: <Info size={20} />,
-      href: "/about",
-    },
-    {
-      title: "FAQs",
-      icon: <CircleHelp size={20} />,
-      href: "/faqs",
-    },
-    {
-      title: "Contact",
-      icon: <Phone size={20} />,
-      href: "/contact",
-    },
+    // {
+    //   title: "About",
+    //   icon: <Info size={20} />,
+    //   href: "/about",
+    // },
+    // {
+    //   title: "FAQs",
+    //   icon: <CircleHelp size={20} />,
+    //   href: "/faqs",
+    // },
+    // {
+    //   title: "Contact",
+    //   icon: <Phone size={20} />,
+    //   href: "/contact",
+    // },
   ];
+
+  const candidateLinks = [
+    {
+      title: "Home",
+      icon: <House size={20} />,
+      href: "/",
+    },
+    {
+      title: "Modules",
+      icon: <BookOpen size={20} />,
+      href: "/modules",
+    },
+    {
+      title: "My Modules",
+      icon: <BookOpen size={20} />,
+      href: "/mymodules",
+    },
+    // {
+    //   title: "About",
+    //   icon: <Info size={20} />,
+    //   href: "/about",
+    // },
+    // {
+    //   title: "FAQs",
+    //   icon: <CircleHelp size={20} />,
+    //   href: "/faqs",
+    // },
+    // {
+    //   title: "Contact",
+    //   icon: <Phone size={20} />,
+    //   href: "/contact",
+    // },
+  ];
+  const linksToDisplay = user?.role === "candidate" ? candidateLinks : links;
 
   return (
     <>
@@ -76,7 +113,7 @@ export default function MobileMenu() {
           </div>
 
           <div className="flex flex-col gap-2">
-            {links.map((link) => (
+            {linksToDisplay.map((link) => (
               <NavLink
                 key={link.title}
                 to={link.href}
