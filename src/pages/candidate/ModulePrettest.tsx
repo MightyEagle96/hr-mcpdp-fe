@@ -2,15 +2,17 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   AlertCircle,
+  ArrowRight,
   CheckCircle2,
   Clock3,
   FileQuestion,
   Play,
   ShieldCheck,
 } from "lucide-react";
-
 import { httpService } from "../../httpService";
 import { toastError } from "../../components/CustomToast";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface Question {
   question: string;
@@ -32,6 +34,14 @@ interface PreTest {
   questions: Question[];
 }
 
+interface SubmitPretestPayload {
+  pretestId: string;
+  answers: {
+    questionIndex: number;
+    answer: string;
+  }[];
+}
+
 function ModulePretest() {
   const { id } = useParams();
 
@@ -49,6 +59,11 @@ function ModulePretest() {
 
   const [timeRemaining, setTimeRemaining] = useState(0);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchPretest = async () => {
       try {
@@ -58,8 +73,9 @@ function ModulePretest() {
           `/moduleprogress/get_module_pretest/${id}`,
         );
 
-        if (response.data.success) {
-          const data = response.data.data;
+        console.log(response.data);
+        if (response.data) {
+          const data = response.data;
 
           setPretest(data);
           setTimeRemaining(data.duration);
@@ -174,6 +190,47 @@ function ModulePretest() {
     );
   }
 
+  const handleSubmit = async () => {
+    if (!pretest) return;
+
+    try {
+      setIsSubmitting(true);
+
+      const formattedAnswers = Object.entries(answers).map(
+        ([questionIndex, answer]) => ({
+          questionIndex: Number(questionIndex),
+          answer,
+        }),
+      );
+
+      const response = await httpService.post(
+        "/moduleprogress/submit_pretest",
+        {
+          pretestId: pretest._id,
+          answers: formattedAnswers,
+        },
+      );
+
+      if (response.data.success) {
+        const result = response.data.data;
+
+        toast.success("Pretest submitted successfully.");
+
+        // Navigate to result page
+        navigate(`/candidate/modules/${pretest.module._id}/pretest/result`, {
+          state: {
+            result,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Failed to submit pretest:", error);
+
+      toast.error("We could not submit your pretest. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-[#F7F8F8]">
       {/* Intro Modal */}
@@ -382,7 +439,7 @@ function ModulePretest() {
           </div>
 
           {/* Navigation */}
-          <div className="mt-5 flex items-center justify-between">
+          {/* <div className="mt-5 flex items-center justify-between">
             <button
               type="button"
               disabled={currentQuestion === 0}
@@ -400,6 +457,38 @@ function ModulePretest() {
             >
               Next
             </button>
+          </div> */}
+          <div className="mt-5 flex items-center justify-between">
+            {/* Previous */}
+            <button
+              type="button"
+              disabled={currentQuestion === 0}
+              onClick={() => setCurrentQuestion((current) => current - 1)}
+              className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Previous
+            </button>
+
+            {/* Next / Submit */}
+            {currentQuestion === pretest.questions.length - 1 ? (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="flex items-center gap-2 rounded-xl bg-[#C63C38] px-5 py-3 text-sm font-bold text-white transition-all hover:bg-[#B63431] active:scale-[0.98]"
+              >
+                Submit Pretest
+                <CheckCircle2 size={17} />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setCurrentQuestion((current) => current + 1)}
+                className="flex items-center gap-2 rounded-xl bg-[#242625] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#5D605F]"
+              >
+                Next
+                <ArrowRight size={16} />
+              </button>
+            )}
           </div>
         </div>
       )}
