@@ -22,6 +22,8 @@ import ModulesDisplay from "../pages/candidate/ModulesDisplay";
 import ModulePurchase from "../pages/candidate/ModulePurchase";
 import MyModules from "../pages/candidate/MyModules";
 import ModulePretest from "../pages/candidate/ModulePrettest";
+
+import ModuleLearning from "../pages/candidate/ModuleLearning";
 //import UnauthorizedPage from "../pages/UnauthorisedPage";
 
 function MainRoutes() {
@@ -61,6 +63,7 @@ function MainRoutes() {
 
     //the module proper
     { path: "/module/pretest/:id", element: <ModulePretest /> },
+    { path: "/module/moduleprogress/:id", element: <ModuleLearning /> },
   ];
 
   const privateRouteToShow =

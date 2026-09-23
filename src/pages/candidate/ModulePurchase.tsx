@@ -1,28 +1,3 @@
-// import { useEffect, useState } from "react";
-// import { useParams } from "react-router-dom";
-
-// function ModulePurchase() {
-//   const { id } = useParams();
-
-//   const [module, setModule] = useState<IModule | null>(null);
-
-//   const findModule = async () => {
-//     try {
-//       const { data } = await httpService.get(`/module/find_module/${id}`);
-//       setModule(data.data);
-//     } catch (error) {
-//       console.error("Failed to fetch module:", error);
-//     }
-//   };
-
-//   useEffect(() => {
-//     findModule();
-//   }, []);
-//   return <div></div>;
-// }
-
-// export default ModulePurchase;
-
 import {
   ArrowLeft,
   BookOpen,
