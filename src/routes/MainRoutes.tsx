@@ -24,6 +24,11 @@ import MyModules from "../pages/candidate/MyModules";
 import ModulePretest from "../pages/candidate/ModulePrettest";
 
 import ModuleLearning from "../pages/candidate/ModuleLearning";
+import CandidateUnitAssessment from "../pages/candidate/CandidateUnitAssessment";
+import PretestResult from "../pages/candidate/PretestResult";
+import CandidateModulePostTest from "../pages/candidate/ModulePostTest";
+import PostTestResult from "../pages/candidate/PostTestResult";
+import UnitAssessmentResult from "../pages/candidate/UnitAssessmentResult";
 //import UnauthorizedPage from "../pages/UnauthorisedPage";
 
 function MainRoutes() {
@@ -63,7 +68,24 @@ function MainRoutes() {
 
     //the module proper
     { path: "/module/pretest/:id", element: <ModulePretest /> },
+    { path: "/module/posttest/:id", element: <CandidateModulePostTest /> },
     { path: "/module/moduleprogress/:id", element: <ModuleLearning /> },
+    {
+      path: "/module/moduleprogress/:moduleId/assessment",
+      element: <CandidateUnitAssessment />,
+    },
+    {
+      path: "/module/moduleprogress/:moduleId/pretest-result",
+      element: <PretestResult />,
+    },
+    {
+      path: "/module/moduleprogress/:moduleId/posttest-result",
+      element: <PostTestResult />,
+    },
+    {
+      path: "/module/moduleprogress/:moduleId/:unitId/unitassessment-result",
+      element: <UnitAssessmentResult />,
+    },
   ];
 
   const privateRouteToShow =

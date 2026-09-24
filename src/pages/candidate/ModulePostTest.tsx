@@ -21,7 +21,7 @@ interface Question {
   explanation: string;
 }
 
-interface PreTest {
+interface PostTest {
   _id: string;
   module: {
     _id: string;
@@ -34,10 +34,10 @@ interface PreTest {
   questions: Question[];
 }
 
-function ModulePretest() {
+function CandidateModulePostTest() {
   const { id } = useParams();
 
-  const [pretest, setPretest] = useState<PreTest | null>(null);
+  const [postTest, setPostTest] = useState<PostTest | null>(null);
 
   const [showIntro, setShowIntro] = useState(true);
 
@@ -57,30 +57,29 @@ function ModulePretest() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPretest = async () => {
+    const fetchPostTest = async () => {
       try {
         setIsLoading(true);
 
         const response = await httpService.get(
-          `/moduleprogress/get_module_pretest/${id}`,
+          `/moduleprogress/get_module_posttest/${id}`,
         );
 
         if (response.data) {
           const data = response.data;
 
-          setPretest(data);
+          setPostTest(data);
           setTimeRemaining(data.duration);
         }
       } catch (error) {
         toastError(error);
-        console.error("Failed to load pretest:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
     if (id) {
-      fetchPretest();
+      fetchPostTest();
     }
   }, [id]);
 
@@ -98,20 +97,48 @@ function ModulePretest() {
   };
 
   /*
-   * Start the pretest.
+   * Start the postTest.
    */
   const handleBeginTest = () => {
     setShowIntro(false);
     setHasStarted(true);
   };
 
+  /*
+   * Countdown timer.
+   */
+  // useEffect(() => {
+  //   if (!hasStarted || !postTest) {
+  //     return;
+  //   }
+
+  //   if (timeRemaining <= 0) {
+  //     return;
+  //   }
+
+  //   const timer = window.setInterval(() => {
+  //     setTimeRemaining((current) => {
+  //       if (current <= 1000) {
+  //         window.clearInterval(timer);
+  //         return 0;
+  //       }
+
+  //       return current - 1000;
+  //     });
+  //   }, 1000);
+
+  //   return () => {
+  //     window.clearInterval(timer);
+  //   };
+  // }, [hasStarted, postTest]);
+
   useEffect(() => {
-    if (!hasStarted || !pretest || isSubmitting) {
+    if (!hasStarted || !postTest || isSubmitting) {
       return;
     }
 
     if (timeRemaining <= 0) {
-      handleSubmit(true);
+      handleSubmit();
       return;
     }
 
@@ -129,7 +156,7 @@ function ModulePretest() {
     return () => {
       window.clearInterval(timer);
     };
-  }, [hasStarted, pretest, timeRemaining, isSubmitting]);
+  }, [hasStarted, postTest, timeRemaining, isSubmitting]);
 
   const formatTimer = (milliseconds: number) => {
     const totalSeconds = Math.ceil(milliseconds / 1000);
@@ -151,14 +178,14 @@ function ModulePretest() {
           <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-[#C63C38]" />
 
           <p className="mt-4 text-sm font-medium text-slate-500">
-            Loading pretest...
+            Loading posttest...
           </p>
         </div>
       </div>
     );
   }
 
-  if (!pretest) {
+  if (!postTest) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#F7F8F8] px-6">
         <div className="text-center">
@@ -167,11 +194,11 @@ function ModulePretest() {
           </div>
 
           <h1 className="mt-5 text-xl font-bold text-slate-900">
-            Pretest unavailable
+            PostTest unavailable
           </h1>
 
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-            We couldn't load the pretest for this module. Please try again
+            We couldn't load the posttest for this module. Please try again
             later.
           </p>
         </div>
@@ -179,53 +206,8 @@ function ModulePretest() {
     );
   }
 
-  // const handleSubmit = async () => {
-  //   if (!pretest) return;
-
-  //   try {
-  //     setIsSubmitting(true);
-
-  //     const formattedAnswers = Object.entries(answers).map(
-  //       ([questionIndex, answer]) => ({
-  //         questionIndex: Number(questionIndex),
-  //         answer,
-  //       }),
-  //     );
-
-  //     const response = await httpService.post(
-  //       "/moduleprogress/submit_pretest",
-  //       {
-  //         pretestId: pretest._id,
-  //         answers: formattedAnswers,
-  //       },
-  //     );
-
-  //     if (response.data.success) {
-  //       const result = response.data.data;
-
-  //       toast.success("Pretest submitted successfully.");
-
-  //       // Navigate to result page
-  //       navigate(
-  //         `/module/moduleprogress/${pretest.module._id}/pretest-result`,
-  //         {
-  //           state: {
-  //             result,
-  //           },
-  //         },
-  //       );
-  //     }
-  //   } catch (error) {
-  //     console.error("Failed to submit pretest:", error);
-
-  //     toast.error("We could not submit your pretest. Please try again.");
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
-
-  const handleSubmit = async (timeExpired = false) => {
-    if (!pretest || isSubmitting) return;
+  const handleSubmit = async () => {
+    if (!postTest) return;
 
     try {
       setIsSubmitting(true);
@@ -238,41 +220,56 @@ function ModulePretest() {
       );
 
       const response = await httpService.post(
-        "/moduleprogress/submit_pretest",
+        "/moduleprogress/submit_posttest",
         {
-          pretestId: pretest._id,
+          postTestId: postTest._id,
           answers: formattedAnswers,
         },
       );
 
       if (response.data.success) {
-        //const result = response.data.data;
+        const result = response.data.data;
 
         toast.success(
-          timeExpired
-            ? "Time expired. Your pretest has been submitted."
-            : "Pretest submitted successfully.",
+          result.passed
+            ? "Posttest passed successfully."
+            : "Posttest submitted successfully.",
         );
 
-        navigate(`/module/moduleprogress/${id}`);
-        // navigate(result.nextRoute, {
-        //   state: {
-        //     result,
-        //   },
-        // });
+        navigate(result.nextRoute, {
+          state: {
+            result,
+          },
+        });
       }
-    } catch (error) {
-      console.error("Failed to submit pretest:", error);
 
-      toast.error("We could not submit your pretest. Please try again.");
+      // if (response.data.success) {
+      //   const result = response.data.data;
+
+      //   toast.success("Posttest submitted successfully.");
+
+      //   // Navigate to result page
+      //   navigate(
+      //     `/module/moduleprogress/${postTest.module._id}/posttest-result`,
+      //     {
+      //       state: {
+      //         result,
+      //       },
+      //     },
+      //   );
+      // }
+    } catch (error) {
+      console.error("Failed to submit posttest:", error);
+
+      toast.error("We could not submit your posttest. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
-  const unansweredCount = pretest
-    ? pretest.questions.length - Object.keys(answers).length
-    : 0;
 
+  const unansweredCount = postTest
+    ? postTest.questions.length - Object.keys(answers).length
+    : 0;
   return (
     <div className="min-h-screen bg-[#F7F8F8]">
       {/* Intro Modal */}
@@ -281,10 +278,10 @@ function ModulePretest() {
           <div className="w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl">
             {/* Banner */}
             <div className="relative h-44 overflow-hidden bg-[#242625]">
-              {pretest.module.imageUrl && (
+              {postTest.module.imageUrl && (
                 <img
-                  src={pretest.module.imageUrl}
-                  alt={pretest.module.title}
+                  src={postTest.module.imageUrl}
+                  alt={postTest.module.title}
                   className="absolute inset-0 h-full w-full object-cover opacity-30"
                 />
               )}
@@ -297,11 +294,11 @@ function ModulePretest() {
                 </div>
 
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/60">
-                  MCPDP Pretest
+                  MCPDP PostTest
                 </p>
 
                 <h2 className="mt-1 text-2xl font-bold text-white">
-                  {pretest.module.title}
+                  {postTest.module.title}
                 </h2>
               </div>
             </div>
@@ -317,7 +314,7 @@ function ModulePretest() {
                   </div>
 
                   <p className="mt-2 text-xl font-bold text-slate-900">
-                    {pretest.questions.length}
+                    {postTest.questions.length}
                   </p>
                 </div>
 
@@ -329,7 +326,7 @@ function ModulePretest() {
                   </div>
 
                   <p className="mt-2 text-xl font-bold text-slate-900">
-                    {formatDuration(pretest.duration)}
+                    {formatDuration(postTest.duration)}
                   </p>
                 </div>
               </div>
@@ -370,7 +367,7 @@ function ModulePretest() {
                 className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#C63C38] px-5 py-4 text-sm font-bold text-white transition-all hover:bg-[#B63431] active:scale-[0.99]"
               >
                 <Play size={18} fill="currentColor" />
-                Begin Pretest
+                Begin PostTest
               </button>
 
               <p className="mt-4 text-center text-xs text-slate-400">
@@ -388,11 +385,11 @@ function ModulePretest() {
           <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-wide text-[#C63C38]">
-                MCPDP Pretest
+                MCPDP PostTest
               </p>
 
               <h1 className="mt-1 text-lg font-bold text-slate-900">
-                {pretest.module.title}
+                {postTest.module.title}
               </h1>
             </div>
 
@@ -407,12 +404,12 @@ function ModulePretest() {
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wide text-slate-400">
-                Question {currentQuestion + 1} of {pretest.questions.length}
+                Question {currentQuestion + 1} of {postTest.questions.length}
               </span>
 
               <span className="text-xs font-semibold text-slate-400">
                 {Math.round(
-                  ((currentQuestion + 1) / pretest.questions.length) * 100,
+                  ((currentQuestion + 1) / postTest.questions.length) * 100,
                 )}
                 %
               </span>
@@ -420,11 +417,11 @@ function ModulePretest() {
 
             <div className="mt-8">
               <h2 className="text-lg font-bold leading-8 text-slate-900 sm:text-xl">
-                {pretest.questions[currentQuestion].question}
+                {postTest.questions[currentQuestion].question}
               </h2>
 
               <div className="mt-6 space-y-3">
-                {pretest.questions[currentQuestion].options.map(
+                {postTest.questions[currentQuestion].options.map(
                   (option, index) => {
                     const selected = answers[currentQuestion] === option;
 
@@ -480,26 +477,6 @@ function ModulePretest() {
             </div>
           </div>
 
-          {/* Navigation */}
-          {/* <div className="mt-5 flex items-center justify-between">
-            <button
-              type="button"
-              disabled={currentQuestion === 0}
-              onClick={() => setCurrentQuestion((current) => current - 1)}
-              className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Previous
-            </button>
-
-            <button
-              type="button"
-              disabled={currentQuestion === pretest.questions.length - 1}
-              onClick={() => setCurrentQuestion((current) => current + 1)}
-              className="rounded-xl bg-[#242625] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#5D605F] disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Next
-            </button>
-          </div> */}
           <div className="mt-5 flex items-center justify-between">
             {/* Previous */}
             <button
@@ -512,16 +489,17 @@ function ModulePretest() {
             </button>
 
             {/* Next / Submit */}
-            {currentQuestion === pretest.questions.length - 1 ? (
+            {currentQuestion === postTest.questions.length - 1 ? (
               <button
-                //type="button"
-                //onClick={handleSubmit}
                 type="button"
-                onClick={() => setShowSubmitDialog(true)}
                 disabled={isSubmitting}
+                onClick={() => setShowSubmitDialog(true)}
+                // type="button"
+                // // onClick={handleSubmit}
+                // onClick={() => setShowSubmitDialog(true)}
                 className="flex items-center gap-2 rounded-xl bg-[#C63C38] px-5 py-3 text-sm font-bold text-white transition-all hover:bg-[#B63431] active:scale-[0.98]"
               >
-                Submit Pretest
+                Submit PostTest
                 <CheckCircle2 size={17} />
               </button>
             ) : (
@@ -538,23 +516,20 @@ function ModulePretest() {
         </div>
       )}
 
-      <SubmitPretestDialog
+      <SubmitPostTestDialog
         open={showSubmitDialog}
         isSubmitting={isSubmitting}
         unansweredCount={unansweredCount}
         onClose={() => setShowSubmitDialog(false)}
-        onConfirm={() => {
-          setShowSubmitDialog(false);
-          handleSubmit();
-        }}
+        onConfirm={handleSubmit}
       />
     </div>
   );
 }
 
-export default ModulePretest;
+export default CandidateModulePostTest;
 
-interface SubmitPretestDialogProps {
+interface SubmitPostTestDialogProps {
   open: boolean;
   isSubmitting: boolean;
   unansweredCount: number;
@@ -562,13 +537,13 @@ interface SubmitPretestDialogProps {
   onConfirm: () => void;
 }
 
-function SubmitPretestDialog({
+function SubmitPostTestDialog({
   open,
   isSubmitting,
   unansweredCount,
   onClose,
   onConfirm,
-}: SubmitPretestDialogProps) {
+}: SubmitPostTestDialogProps) {
   if (!open) return null;
 
   return (
@@ -582,12 +557,12 @@ function SubmitPretestDialog({
 
           {/* Heading */}
           <h2 className="mt-5 text-xl font-bold text-slate-900">
-            Submit Pretest?
+            Submit PostTest?
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            You are about to submit your pretest. Your answers will be scored
-            immediately and your result will be recorded.
+            You are about to submit your posttest. Your answers will be scored
+            immediately and your module completion status will be updated.
           </p>
 
           {/* Unanswered warning */}
@@ -647,7 +622,7 @@ function SubmitPretestDialog({
                 disabled:cursor-not-allowed disabled:opacity-60
               "
             >
-              {isSubmitting ? "Submitting..." : "Submit Pretest"}
+              {isSubmitting ? "Submitting..." : "Submit PostTest"}
             </button>
           </div>
         </div>

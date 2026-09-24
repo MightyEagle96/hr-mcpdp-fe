@@ -57,7 +57,8 @@ function ModulePurchase() {
       });
 
       if (data.success) {
-        navigate(`/modules/${module._id}`);
+        navigate("/mymodules");
+        // navigate(`/modules/${module._id}`);
       }
     } catch (error) {
       toastError(error);

@@ -13,6 +13,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 export interface LearningTopic {
   _id: string;
+
   title: string;
   order: number;
   status: "locked" | "pending" | "incomplete" | "complete";
@@ -95,13 +96,13 @@ function ModuleProgress({
     }));
   };
 
-  const handleTopicClick = (topic: LearningTopic) => {
+  const handleTopicClick = (topic: LearningTopic, unitId: string) => {
     if (topic.status === "locked") {
       return;
     }
 
     navigate(
-      `/module/moduleprogress/${route.module}?unit=${route.unit}&topic=${topic._id}`,
+      `/module/moduleprogress/${route.module}?unit=${unitId}&topic=${topic._id}`,
     );
 
     //console.log(topic, openUnits);
@@ -248,7 +249,7 @@ function ModuleProgress({
                               key={topic._id}
                               type="button"
                               disabled={isLocked}
-                              onClick={() => handleTopicClick(topic)}
+                              onClick={() => handleTopicClick(topic, unit._id)}
                               className={`
                                 flex w-full items-center gap-3
                                 rounded-xl px-3 py-2.5

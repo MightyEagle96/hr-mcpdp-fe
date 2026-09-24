@@ -9,7 +9,6 @@ import {
   BookOpen,
   CheckCircle2,
   Clock3,
-  Loader2,
 } from "lucide-react";
 
 interface TopicContent {
@@ -59,6 +58,11 @@ function ModuleContent() {
   };
 
   useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
     getData();
   }, [unit, topic]);
 
@@ -223,7 +227,7 @@ function ModuleContent() {
         </div>
 
         {/* Navigation */}
-        <div className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
+        {/* <div className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <button
             type="button"
             className="
@@ -249,7 +253,7 @@ function ModuleContent() {
             Next Topic
             <ArrowRight size={17} />
           </button>
-        </div>
+        </div> */}
       </div>
     </main>
   );
