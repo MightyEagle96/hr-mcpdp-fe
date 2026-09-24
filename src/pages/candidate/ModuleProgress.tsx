@@ -9,6 +9,7 @@ import {
   PlayCircle,
 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 export interface LearningTopic {
   _id: string;
@@ -75,6 +76,18 @@ function ModuleProgress({
 }: ModuleProgressProps) {
   const [openUnits, setOpenUnits] = useState<Record<string, boolean>>({});
 
+  const [params] = useSearchParams();
+
+  const { id } = useParams();
+
+  const route = {
+    unit: params.get("unit"),
+    topic: params.get("topic"),
+    module: id,
+  };
+
+  const navigate = useNavigate();
+
   const toggleUnit = (unitId: string) => {
     setOpenUnits((current) => ({
       ...current,
@@ -87,6 +100,11 @@ function ModuleProgress({
       return;
     }
 
+    navigate(
+      `/module/moduleprogress/${route.module}?unit=${route.unit}&topic=${topic._id}`,
+    );
+
+    //console.log(topic, openUnits);
     onTopicSelect(topic._id);
 
     onClose?.();
