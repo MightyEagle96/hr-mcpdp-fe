@@ -4,8 +4,8 @@ import { toastError } from "../../components/CustomToast";
 import { useEffect, useState } from "react";
 
 import {
-  ArrowLeft,
-  ArrowRight,
+  // ArrowLeft,
+  // ArrowRight,
   BookOpen,
   CheckCircle2,
   Clock3,
