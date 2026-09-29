@@ -7,9 +7,34 @@ import {
   PlayCircle,
 } from "lucide-react";
 import { useAppUser } from "../../context/AppUserContext";
+import { httpService } from "../../httpService";
+import { useEffect, useState } from "react";
 
 function CandidateDashboard() {
   const { user } = useAppUser();
+
+  const [statistics, setStatistics] = useState({
+    completedModules: 0,
+    inProgress: 0,
+    numberOfModules: 0,
+    overallPercentage: 0,
+    totalModules: 0,
+    totalScore: 0,
+    totalUnitScores: 0,
+  });
+
+  const getDashboard = async () => {
+    try {
+      const { data } = await httpService.get("/candidate/dashboard");
+
+      setStatistics(data);
+      console.log(data);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    getDashboard();
+  }, []);
   return (
     <div className="min-h-screen bg-[#F7F8F8]">
       <main className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
@@ -71,7 +96,9 @@ function CandidateDashboard() {
                     Overall Progress
                   </p>
 
-                  <p className="mt-2 text-4xl font-bold text-white">68%</p>
+                  <p className="mt-2 text-4xl font-bold text-white">
+                    {statistics.overallPercentage}%
+                  </p>
                 </div>
 
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#C63C38]/15 text-[#C63C38]">
@@ -82,16 +109,19 @@ function CandidateDashboard() {
               <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
                 <div
                   className="h-full rounded-full bg-[#C63C38]"
-                  style={{ width: "68%" }}
+                  style={{ width: `${statistics.overallPercentage}%` }}
                 />
               </div>
 
               <div className="mt-5 flex items-center justify-between text-xs">
                 <span className="text-white/50">
-                  17 of 25 modules completed
+                  {statistics.completedModules} of {statistics.numberOfModules}{" "}
+                  modules completed
                 </span>
 
-                <span className="font-semibold text-white">68%</span>
+                <span className="font-semibold text-white">
+                  {statistics.overallPercentage}%
+                </span>
               </div>
             </div>
           </div>
@@ -102,28 +132,28 @@ function CandidateDashboard() {
           <DashboardStat
             icon={<BookOpen size={20} />}
             label="Modules"
-            value="25"
+            value={statistics.totalModules.toString()}
             description="Available to you"
           />
 
           <DashboardStat
             icon={<CheckCircle2 size={20} />}
             label="Completed"
-            value="17"
+            value={statistics.completedModules.toString()}
             description="Modules completed"
           />
 
           <DashboardStat
             icon={<Clock3 size={20} />}
             label="In Progress"
-            value="4"
+            value={statistics.inProgress.toString()}
             description="Currently learning"
           />
 
           <DashboardStat
             icon={<GraduationCap size={20} />}
             label="Assessments"
-            value="12"
+            value={statistics.totalUnitScores.toString()}
             description="Successfully completed"
           />
         </section>

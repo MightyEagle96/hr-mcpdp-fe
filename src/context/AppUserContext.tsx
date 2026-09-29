@@ -1,5 +1,6 @@
 // src/context/AppUserContext.jsx
 import React, { createContext, useContext, useState } from "react";
+import { httpService } from "../httpService";
 
 export const roles = {
   admin: "admin",
@@ -16,10 +17,18 @@ export type User = {
   gradeLevel: string;
 };
 
+export const logout = async () => {
+  const { data } = await httpService.get("/auth/logout");
+  if (data) {
+    window.location.assign("/");
+  }
+};
+
 type AppUserContextType = {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   logout: () => void;
+  //logout: () => void;
 };
 
 const AppUserContext = createContext<AppUserContextType | undefined>(undefined);
@@ -32,7 +41,14 @@ type Props = {
 export const AppUserProvider = ({ children }: Props) => {
   const [user, setUser] = useState<User | null>(null);
 
-  const logout = () => setUser(null);
+  //const logout = () => setUser(null);
+
+  const logout = async () => {
+    const { data } = await httpService.get("/auth/logout");
+    if (data) {
+      window.location.assign("/");
+    }
+  };
 
   return (
     <AppUserContext.Provider value={{ user, setUser, logout }}>
