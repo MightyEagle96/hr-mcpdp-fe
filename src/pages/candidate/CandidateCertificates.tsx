@@ -20,7 +20,9 @@ function Certificates() {
     setLoading(false);
   };
 
-  const onGenerateCertificate = () => {};
+  const onGenerateCertificate = (params: any) => {
+    console.log(params);
+  };
 
   const onViewCertificate = () => {};
 
