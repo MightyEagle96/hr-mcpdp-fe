@@ -29,6 +29,7 @@ import PretestResult from "../pages/candidate/PretestResult";
 import CandidateModulePostTest from "../pages/candidate/ModulePostTest";
 import PostTestResult from "../pages/candidate/PostTestResult";
 import UnitAssessmentResult from "../pages/candidate/UnitAssessmentResult";
+import CandidateCertificates from "../pages/candidate/CandidateCertificates";
 //import UnauthorizedPage from "../pages/UnauthorisedPage";
 
 function MainRoutes() {
@@ -65,6 +66,7 @@ function MainRoutes() {
     { path: "/modules", element: <ModulesDisplay /> },
     { path: "/mymodules", element: <MyModules /> },
     { path: "/modules/purchase/:id", element: <ModulePurchase /> },
+    { path: "/certificates", element: <CandidateCertificates /> },
 
     //the module proper
     { path: "/module/pretest/:id", element: <ModulePretest /> },

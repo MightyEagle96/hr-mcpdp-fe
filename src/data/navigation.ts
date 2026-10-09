@@ -36,4 +36,17 @@ export const candidateNavigationLinks = [
     title: "My Modules",
     path: "/mymodules",
   },
+  { title: "Certificates", path: "/certificates" },
+  // {
+  //   title: "About",
+  //   path: "/about",
+  // },
+  // {
+  //   title: "FAQs",
+  //   path: "/faqs",
+  // },
+  // {
+  //   title: "Contact",
+  //   path: "/contact",
+  // },
 ];

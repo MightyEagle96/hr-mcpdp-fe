@@ -6,6 +6,7 @@ import {
   X,
   House,
   BookOpen,
+  Award,
   // Info,
   // CircleHelp,
   // Phone,
@@ -61,6 +62,11 @@ export default function MobileMenu() {
     {
       title: "My Modules",
       icon: <BookOpen size={20} />,
+      href: "/mymodules",
+    },
+    {
+      title: "My Certificates",
+      icon: <Award size={20} />,
       href: "/mymodules",
     },
     // {
