@@ -55,7 +55,7 @@ function CandidateCertificates({
   ).length;
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F7F8F8] px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-7">
         {/* Page heading */}
         <div>
@@ -63,7 +63,7 @@ function CandidateCertificates({
             <BookOpen size={16} />
             <span>My Learning</span>
             <span>/</span>
-            <span className="font-medium text-emerald-700">Certificates</span>
+            <span className="font-medium text-[#C63C38]">Certificates</span>
           </div>
 
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
@@ -82,21 +82,21 @@ function CandidateCertificates({
             icon={<FileBadge size={22} />}
             title="Certificates Issued"
             value={issuedCount}
-            color="emerald"
+            color="crimson"
           />
 
           <SummaryCard
             icon={<Award size={22} />}
             title="Ready for Certification"
             value={eligibleCount}
-            color="blue"
+            color="charcoal"
           />
 
           <SummaryCard
             icon={<Clock size={22} />}
             title="Learning in Progress"
             value={inProgressCount}
-            color="amber"
+            color="neutral"
           />
         </div>
 
@@ -249,7 +249,7 @@ function CandidateCertificates({
                           onClick={() =>
                             onViewCertificate(progress.certificate!._id)
                           }
-                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-800"
+                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#C63C38] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#B63431] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <Download size={16} />
                           View Certificate
@@ -259,7 +259,7 @@ function CandidateCertificates({
                           type="button"
                           disabled={isGenerating}
                           onClick={() => onGenerateCertificate(progress._id)}
-                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#C63C38] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#B63431] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {isGenerating ? (
                             <LoaderCircle size={16} className="animate-spin" />
@@ -276,7 +276,7 @@ function CandidateCertificates({
                           type="button"
                           disabled
                           title="A score of 100% is required to access a certificate."
-                          className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-400"
+                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#C63C38] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#B63431] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <ShieldCheck size={16} />
                           View Certificate
@@ -291,13 +291,15 @@ function CandidateCertificates({
         </section>
 
         {/* Informational note */}
-        <div className="flex items-start gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
-          <ShieldCheck size={20} className="mt-0.5 shrink-0 text-emerald-700" />
+        <div className="flex items-start gap-3 rounded-xl border border-[#C63C38]/20 bg-[#C63C38]/5 p-4">
+          <ShieldCheck size={20} className="mt-0.5 shrink-0 text-[#C63C38]" />
+
           <div>
-            <p className="text-sm font-semibold text-emerald-900">
+            <p className="text-sm font-semibold text-[#242625]">
               Certificate eligibility
             </p>
-            <p className="mt-1 text-sm leading-6 text-emerald-800/80">
+
+            <p className="mt-1 text-sm leading-6 text-[#5D605F]">
               You must attain a score of 100% in a module before generating or
               viewing its certificate. Once issued, your certificate remains
               available from this page.
@@ -313,28 +315,35 @@ interface SummaryCardProps {
   icon: React.ReactNode;
   title: string;
   value: number;
-  color: "emerald" | "blue" | "amber";
+  color: "crimson" | "charcoal" | "neutral";
+}
+
+interface SummaryCardProps {
+  icon: React.ReactNode;
+  title: string;
+  value: number;
+  color: "crimson" | "charcoal" | "neutral";
 }
 
 function SummaryCard({ icon, title, value, color }: SummaryCardProps) {
   const colors = {
-    emerald: "bg-emerald-50 text-emerald-700",
-    blue: "bg-blue-50 text-blue-700",
-    amber: "bg-amber-50 text-amber-700",
+    crimson: "bg-[#C63C38]/10 text-[#C63C38]",
+    charcoal: "bg-[#242625]/10 text-[#242625]",
+    neutral: "bg-slate-100 text-[#5D605F]",
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
       <div
         className={`flex h-11 w-11 items-center justify-center rounded-xl ${colors[color]}`}
       >
         {icon}
       </div>
 
-      <p className="mt-5 text-3xl font-bold text-slate-900">{value}</p>
-      <p className="mt-1 text-sm text-slate-500">{title}</p>
+      <p className="mt-5 text-3xl font-bold text-[#242625]">{value}</p>
+
+      <p className="mt-1 text-sm text-[#5D605F]">{title}</p>
     </div>
   );
 }
-
 export default CandidateCertificates;
