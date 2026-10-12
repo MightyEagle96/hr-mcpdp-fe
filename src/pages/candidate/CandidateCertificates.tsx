@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import CandidateCertificates from "./CandidateCertificatesProps";
 import { httpService } from "../../httpService";
+import { toast } from "sonner";
+import { toastError } from "../../components/CustomToast";
 
 function Certificates() {
   const [moduleProgress, setModuleProgress] = useState([]);
@@ -20,7 +22,17 @@ function Certificates() {
     setLoading(false);
   };
 
-  const onGenerateCertificate = (params: any) => {
+  const onGenerateCertificate = async (params: any) => {
+    setLoading(true);
+    try {
+      const { data } = await httpService.get(
+        `moduleprogress/generate_certificate/${params}`,
+      );
+      toast.success(data);
+    } catch (error) {
+      toastError(error);
+    }
+    setLoading(false);
     console.log(params);
   };
 
