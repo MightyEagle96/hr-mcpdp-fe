@@ -86,7 +86,7 @@ function AdminDashboard() {
 
           {/* Primary action */}
           <Link
-            to="/admin/modules/create"
+            to="/modules"
             className="
               inline-flex min-h-12 w-full shrink-0 items-center
               justify-center gap-2 rounded-xl
