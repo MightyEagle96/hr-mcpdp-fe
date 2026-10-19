@@ -12,25 +12,29 @@ import { toastError } from "../CustomToast";
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
 
   const loginHandler = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const result = ValidationSchema.LoginValidator.safeParse(formData);
 
     if (!result.success) {
       const firstError = result.error.issues[0];
-
       toast.error(firstError.message);
+      return;
     }
+
+    setLoading(true);
 
     try {
       await httpService.post("/candidate/login", formData);
       window.location.assign("/");
     } catch (error) {
       toastError(error);
+    } finally {
+      setLoading(false);
     }
-
-    console.log(formData);
   };
 
   return (
@@ -101,26 +105,35 @@ export default function LoginForm() {
 
         <button
           type="submit"
-          className="
-            mt-2
-            w-full
-            rounded-2xl
-            bg-gradient-to-r
-            from-[#C63C38]
-            to-[#B63431]
-            py-4
-            text-lg
-            font-semibold
-            text-white
-            shadow-lg
-            shadow-red-300/30
-            transition-all
-            duration-300
-            hover:-translate-y-0.5
-            hover:shadow-xl
-          "
+          disabled={loading}
+          className={`
+    mt-2
+    flex w-full items-center justify-center gap-3
+    rounded-2xl
+    bg-gradient-to-r from-[#C63C38] to-[#B63431]
+    py-4 text-lg font-semibold text-white
+    shadow-lg shadow-red-300/30
+    transition-all duration-300
+    ${
+      loading
+        ? "cursor-not-allowed opacity-80"
+        : "hover:-translate-y-0.5 hover:shadow-xl"
+    }
+  `}
         >
-          Sign In
+          {loading ? (
+            <>
+              <span
+                className="
+          h-5 w-5 animate-spin rounded-full
+          border-2 border-white/30 border-t-white
+        "
+              />
+              <span>Signing In...</span>
+            </>
+          ) : (
+            "Sign In"
+          )}
         </button>
       </form>
 
