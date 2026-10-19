@@ -7,6 +7,8 @@ import {
   House,
   BookOpen,
   Award,
+  ArrowRight,
+  User,
   // Info,
   // CircleHelp,
   // Phone,
@@ -30,6 +32,16 @@ export default function MobileMenu() {
       title: "Modules",
       icon: <BookOpen size={20} />,
       href: "/modules",
+    },
+    {
+      title: "Login",
+      icon: <ArrowRight size={20} />,
+      href: "/login",
+    },
+    {
+      title: "Register",
+      icon: <User size={20} />,
+      href: "/register",
     },
     // {
     //   title: "About",
