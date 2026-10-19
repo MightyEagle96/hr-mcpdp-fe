@@ -30,6 +30,8 @@ export default function RegisterForm() {
 
   const [showReview, setShowReview] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const createAccountHandler = (e: React.FormEvent) => {
@@ -49,17 +51,17 @@ export default function RegisterForm() {
   };
 
   const onConfirm = async () => {
+    setLoading(true);
     try {
       const { data } = await httpService.post("/candidate", formData);
       toast.success(data.message);
       setShowReview(false);
 
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
+      navigate("/login");
     } catch (error) {
       toastError(error);
     }
+    setLoading(false);
   };
   return (
     <div
@@ -287,6 +289,7 @@ export default function RegisterForm() {
         data={formData}
         onClose={() => setShowReview(false)}
         onConfirm={onConfirm}
+        loading={loading}
       />
     </div>
   );
