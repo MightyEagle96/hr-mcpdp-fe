@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 import Input from "../form/Input";
-import { Lock, Mail } from "lucide-react";
+import { Lock, Mail, LoaderCircle } from "lucide-react";
 import PasswordInput from "../form/PasswordInput";
 import { useState } from "react";
 
@@ -11,17 +11,22 @@ import { httpService } from "../../httpService";
 import { toastError } from "../CustomToast";
 
 export default function LoginForm() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
   const [loading, setLoading] = useState(false);
 
   const loginHandler = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (loading) return;
+
     const result = ValidationSchema.LoginValidator.safeParse(formData);
 
     if (!result.success) {
-      const firstError = result.error.issues[0];
-      toast.error(firstError.message);
+      toast.error(result.error.issues[0].message);
       return;
     }
 
@@ -40,37 +45,46 @@ export default function LoginForm() {
   return (
     <div
       className="
-        rounded-[36px]
-        border
-        border-slate-200
+        w-full min-w-0
+        rounded-2xl border border-slate-200
         bg-white
-        p-10
-        shadow-2xl
+        p-5 shadow-xl
+        sm:rounded-3xl sm:p-7
+        lg:rounded-[32px] lg:p-9
       "
     >
       {/* Header */}
-
       <div>
-        <span className="text-4xl">👋</span>
+        <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-2xl sm:h-12 sm:w-12">
+          👋
+        </div>
 
-        <h2 className="mt-3 text-3xl font-bold text-slate-900">Welcome Back</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          Welcome Back
+        </h2>
 
-        <p className="mt-3 leading-7 text-slate-600">
+        <p className="mt-2 text-sm leading-6 text-slate-600 sm:mt-3 sm:text-base sm:leading-7">
           Sign in to continue your professional development journey through the
           HRORBN Mandatory Continuing Professional Development Portal.
         </p>
       </div>
 
       {/* Form */}
-
-      <form onSubmit={loginHandler} className="mt-10 flex flex-col gap-6">
+      <form
+        onSubmit={loginHandler}
+        className="mt-6 flex flex-col gap-4 sm:mt-8 sm:gap-5"
+      >
         {/* Email */}
-
         <Input
           label="Email Address"
           type="email"
           icon={<Mail size={18} />}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              email: e.target.value,
+            }))
+          }
         />
 
         {/* Password */}
@@ -78,23 +92,24 @@ export default function LoginForm() {
           label="Password"
           icon={<Lock size={18} />}
           onChange={(e) =>
-            setFormData({ ...formData, password: e.target.value })
+            setFormData((prev) => ({
+              ...prev,
+              password: e.target.value,
+            }))
           }
         />
 
-        {/* Remember Me + Forgot Password */}
-
-        <div className="flex items-center justify-between">
-          {/* <FormControlLabel control={<Checkbox />} label="Remember Me" /> */}
-
+        {/* Forgot Password */}
+        <div className="flex justify-end">
           <Link
             to="/forgot-password"
             className="
-              text-sm
-              font-semibold
-              text-[#C63C38]
-              transition-colors
-              hover:text-[#A32F2C]
+              inline-flex min-h-8 items-center
+              text-sm font-semibold text-[#C63C38]
+              transition-colors hover:text-[#A32F2C]
+              focus-visible:outline-none
+              focus-visible:ring-2 focus-visible:ring-[#C63C38]
+              focus-visible:ring-offset-2
             "
           >
             Forgot Password?
@@ -102,32 +117,34 @@ export default function LoginForm() {
         </div>
 
         {/* Submit */}
-
         <button
           type="submit"
           disabled={loading}
+          aria-busy={loading}
           className={`
-    mt-2
-    flex w-full items-center justify-center gap-3
-    rounded-2xl
-    bg-gradient-to-r from-[#C63C38] to-[#B63431]
-    py-4 text-lg font-semibold text-white
-    shadow-lg shadow-red-300/30
-    transition-all duration-300
-    ${
-      loading
-        ? "cursor-not-allowed opacity-80"
-        : "hover:-translate-y-0.5 hover:shadow-xl"
-    }
-  `}
+            mt-1 flex min-h-12 w-full items-center justify-center gap-2.5
+            rounded-xl
+            bg-gradient-to-r from-[#C63C38] to-[#B63431]
+            px-4 py-3
+            text-base font-semibold text-white
+            shadow-md shadow-red-300/30
+            transition-all duration-200
+            focus-visible:outline-none
+            focus-visible:ring-2 focus-visible:ring-[#C63C38]
+            focus-visible:ring-offset-2
+            ${
+              loading
+                ? "cursor-not-allowed opacity-75"
+                : "hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+            }
+          `}
         >
           {loading ? (
             <>
-              <span
-                className="
-          h-5 w-5 animate-spin rounded-full
-          border-2 border-white/30 border-t-white
-        "
+              <LoaderCircle
+                size={20}
+                className="shrink-0 animate-spin"
+                aria-hidden="true"
               />
               <span>Signing In...</span>
             </>
@@ -138,30 +155,28 @@ export default function LoginForm() {
       </form>
 
       {/* Divider */}
-
-      <div className="my-8 flex items-center gap-4">
+      <div className="my-5 flex items-center gap-3 sm:my-7 sm:gap-4">
         <div className="h-px flex-1 bg-slate-200" />
-
-        <span className="text-sm text-slate-400">OR</span>
-
+        <span className="text-xs font-medium text-slate-400 sm:text-sm">
+          OR
+        </span>
         <div className="h-px flex-1 bg-slate-200" />
       </div>
 
       {/* Footer */}
-
       <div className="text-center">
-        <p className="text-slate-600">Don't have an account?</p>
+        <p className="text-sm text-slate-600">Don't have an account?</p>
 
         <Link
           to="/register"
           className="
-            mt-2
-            inline-block
-            font-semibold
-            text-[#C63C38]
-            transition-colors
-            hover:text-[#A32F2C]
+            mt-1.5 inline-flex min-h-9 items-center justify-center
+            font-semibold text-[#C63C38]
+            transition-colors hover:text-[#A32F2C]
             hover:underline
+            focus-visible:outline-none
+            focus-visible:ring-2 focus-visible:ring-[#C63C38]
+            focus-visible:ring-offset-2
           "
         >
           Create an Account
