@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Clock3,
 } from "lucide-react";
+import RichContent from "../../components/RichContent";
 
 interface TopicContent {
   _id: string;
@@ -49,6 +50,7 @@ function ModuleContent() {
         },
       });
 
+      console.log(data);
       setContent(data.data ?? data);
     } catch (error) {
       toastError(error);
@@ -164,7 +166,8 @@ function ModuleContent() {
         </header>
 
         {/* Rich text content */}
-        <article
+        <RichContent html={content.content || ""} />
+        {/* <article
           className="
             prose prose-slate max-w-none
             prose-headings:font-bold
@@ -184,7 +187,7 @@ function ModuleContent() {
           dangerouslySetInnerHTML={{
             __html: content.content || "",
           }}
-        />
+        /> */}
 
         {/* Completion section */}
         <div className="mt-14 border-t border-slate-200 pt-8">

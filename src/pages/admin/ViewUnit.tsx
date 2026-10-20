@@ -16,7 +16,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { httpService } from "../../httpService";
 import AddTopicModal from "./AddTopicModal";
 import { toastError } from "../../components/CustomToast";
-
+import { toast } from "sonner";
 interface Module {
   _id: string;
   title: string;
@@ -111,6 +111,8 @@ function ViewUnit() {
       });
 
       if (response.data.success) {
+        toast.success(response.data.message);
+
         setTopics((current: any) => [...current, response.data.data]);
 
         setShowAddTopicModal(false);

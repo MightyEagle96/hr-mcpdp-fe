@@ -1,11 +1,22 @@
-import { useEffect, useState } from "react";
-import { ArrowLeft, BookOpen, ChevronRight, Eye, Save } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import {
+  ArrowLeft,
+  BookOpen,
+  ChevronRight,
+  Eye,
+  Save,
+  MoreVertical,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { httpService } from "../../httpService";
 
 import TopicEditor from "../../components/editor/TopicEditor";
 import { toast } from "sonner";
 import { toastError } from "../../components/CustomToast";
+import DeleteTopicDialog from "./DeleteTopicDialog";
+import EditTopicDialog from "./EditTopicDialog";
 interface Module {
   _id: string;
   title: string;
@@ -37,39 +48,58 @@ function TopicAuthorPage() {
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isUpdatingTopic, setIsUpdatingTopic] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchTopic = async () => {
-      try {
-        setIsLoading(true);
-
-        // Replace with your actual API service
-        const response = await httpService(`/topic/find_topic/${topicId}`);
-
-        console.log(response.data);
-        const data = response.data;
-
-        console.log(data);
-
-        setTopic(data);
-        setContent(data.content || "");
-        // if (!response.ok) {
-        //   throw new Error("Failed to retrieve topic.");
-        // }
-
-        // const result = await response.json();
-
-        // const data = result.data;
-
-        // setTopic(data);
-        //setContent(data.content || "");
-      } catch (error) {
-        console.error("Failed to load topic:", error);
-      } finally {
-        setIsLoading(false);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
       }
     };
 
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const fetchTopic = async () => {
+    try {
+      setIsLoading(true);
+
+      // Replace with your actual API service
+      const response = await httpService(`/topic/find_topic/${topicId}`);
+
+      console.log(response.data);
+      const data = response.data;
+
+      console.log(data);
+
+      setTopic(data);
+      setContent(data.content || "");
+      // if (!response.ok) {
+      //   throw new Error("Failed to retrieve topic.");
+      // }
+
+      // const result = await response.json();
+
+      // const data = result.data;
+
+      // setTopic(data);
+      //setContent(data.content || "");
+    } catch (error) {
+      console.error("Failed to load topic:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
     if (topicId) {
       fetchTopic();
     }
@@ -126,6 +156,45 @@ function TopicAuthorPage() {
       </div>
     );
   }
+
+  const handleEdit = async (values: { topic: string; order: number }) => {
+    if (isUpdatingTopic) return;
+
+    try {
+      setIsUpdatingTopic(true);
+
+      await httpService.patch(`/topic/update_topic/${topic._id}`, values);
+
+      setIsEditDialogOpen(false);
+
+      // Reload the topic and its unit's topic list
+      // so the updated title and order are displayed.
+      await fetchTopic();
+    } catch (error) {
+      toastError(error);
+      console.error("Failed to update topic:", error);
+      // Display your application's error toast here.
+    } finally {
+      setIsUpdatingTopic(false);
+    }
+  };
+  const handleDelete = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const deleteTopic = async () => {
+    setIsDeleting(true);
+    try {
+      console.log(topicId);
+      await httpService.delete(`/topic/delete_topic/${topicId}`);
+
+      navigate(`/modules/view/unit/${unitId}`);
+    } catch (error) {
+      toastError(error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -204,9 +273,58 @@ function TopicAuthorPage() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#C63C38] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:bg-[#B63431] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
             >
               <Save size={17} />
-
               {isSaving ? "Saving..." : "Save Changes"}
             </button>
+
+            {/* Actions Dropdown */}
+            <div className="relative" ref={menuRef}>
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen((prev) => !prev)}
+                aria-label="Topic actions"
+                aria-haspopup="menu"
+                aria-expanded={isMenuOpen}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
+              >
+                <MoreVertical size={20} />
+              </button>
+
+              {isMenuOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl"
+                >
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsEditDialogOpen(true);
+                    }}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-[#C63C38]"
+                  >
+                    <Pencil size={16} />
+                    Edit Topic
+                  </button>
+
+                  <div className="my-1 border-t border-slate-100" />
+
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      // TODO: Connect your delete confirmation.
+                      handleDelete();
+                    }}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                  >
+                    <Trash2 size={16} />
+                    Delete Topic
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -283,6 +401,22 @@ function TopicAuthorPage() {
           </aside>
         </div>
       </div>
+      <DeleteTopicDialog
+        isOpen={isDeleteDialogOpen}
+        topicTitle={topic.topic}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        isDeleting={isDeleting}
+        onConfirm={deleteTopic}
+      />
+
+      <EditTopicDialog
+        isOpen={isEditDialogOpen}
+        topicTitle={topic.topic}
+        currentOrder={topic.order}
+        isSaving={isUpdatingTopic}
+        onClose={() => setIsEditDialogOpen(false)}
+        onSave={handleEdit}
+      />
     </div>
   );
 }
