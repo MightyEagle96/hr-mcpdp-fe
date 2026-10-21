@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import DOMPurify from "dompurify";
 import parse, { type HTMLReactParserOptions } from "html-react-parser";
-import { Element, Text } from "domhandler";
+import type { DOMNode, Element } from "html-react-parser";
 
 interface RichContentProps {
   html?: string;
@@ -10,9 +10,9 @@ interface RichContentProps {
 
 const YOUTUBE_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
 
-function getYouTubeEmbedUrl(url: string): string | null {
+function getYouTubeEmbedUrl(rawUrl: string): string | null {
   try {
-    const parsed = new URL(url);
+    const parsed = new URL(rawUrl.trim());
     const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
 
     let videoId: string | null = null;
@@ -20,14 +20,20 @@ function getYouTubeEmbedUrl(url: string): string | null {
     if (host === "youtu.be") {
       videoId = parsed.pathname.split("/").filter(Boolean)[0] ?? null;
     } else if (
-      ["youtube.com", "m.youtube.com", "youtube-nocookie.com"].includes(host)
+      [
+        "youtube.com",
+        "m.youtube.com",
+        "music.youtube.com",
+        "youtube-nocookie.com",
+      ].includes(host)
     ) {
       if (parsed.pathname === "/watch") {
         videoId = parsed.searchParams.get("v");
       } else {
         const match = parsed.pathname.match(
-          /^\/(?:embed|shorts|live)\/([a-zA-Z0-9_-]+)/,
+          /^\/(?:embed|shorts|live|v)\/([a-zA-Z0-9_-]+)/,
         );
+
         videoId = match?.[1] ?? null;
       }
     }
@@ -42,10 +48,13 @@ function getYouTubeEmbedUrl(url: string): string | null {
   }
 }
 
-function getMediaType(url: string): "video" | "audio" | null {
+function getMediaType(rawUrl: string): "video" | "audio" | null {
   try {
-    const parsed = new URL(url);
-    if (!["http:", "https:"].includes(parsed.protocol)) return null;
+    const parsed = new URL(rawUrl);
+
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      return null;
+    }
 
     const path = parsed.pathname.toLowerCase();
 
@@ -72,7 +81,7 @@ function YouTubePlayer({ url }: { url: string }) {
         className="h-full w-full border-0"
         loading="lazy"
         referrerPolicy="strict-origin-when-cross-origin"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
       />
     </div>
@@ -131,10 +140,10 @@ function renderUrl(url: string, key: number) {
   );
 }
 
-// Handle URLs pasted directly into text, not just hyperlinks.
 function renderTextWithMedia(text: string) {
   const urlRegex = /https?:\/\/[^\s<>"']+/gi;
   const parts: React.ReactNode[] = [];
+
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   let key = 0;
@@ -143,7 +152,6 @@ function renderTextWithMedia(text: string) {
     let url = match[0];
     let trailing = "";
 
-    // Keep punctuation outside the URL.
     while (/[.,!?;:)\]}]$/.test(url)) {
       trailing = url.slice(-1) + trailing;
       url = url.slice(0, -1);
@@ -158,11 +166,23 @@ function renderTextWithMedia(text: string) {
     lastIndex = match.index + match[0].length;
   }
 
-  if (parts.length === 0) return null;
+  if (parts.length === 0) {
+    return null;
+  }
 
   parts.push(text.slice(lastIndex));
 
   return <Fragment>{parts}</Fragment>;
+}
+
+function isHttpUrl(rawUrl: string): boolean {
+  try {
+    const url = new URL(rawUrl, window.location.origin);
+
+    return ["http:", "https:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
 }
 
 export default function RichContent({
@@ -170,15 +190,90 @@ export default function RichContent({
   className = "",
 }: RichContentProps) {
   const cleanHtml = DOMPurify.sanitize(html, {
+    ADD_TAGS: ["oembed"],
+    ADD_ATTR: ["url"],
     FORBID_TAGS: ["iframe", "object", "embed"],
     FORBID_ATTR: ["srcdoc"],
   });
 
   const options: HTMLReactParserOptions = {
-    replace(node) {
-      // Convert YouTube hyperlinks and direct media links.
-      if (node instanceof Element && node.name === "a") {
-        const href = node.attribs.href || "";
+    replace(node: DOMNode) {
+      // 1. Handle CKEditor 5 media embeds FIRST.
+      // Example: <oembed url="https://youtu.be/VIDEO_ID"></oembed>
+      if (node.type === "tag" && node.name === "oembed") {
+        const mediaNode = node as Element;
+        const url = mediaNode.attribs.url?.trim();
+
+        if (!url || !isHttpUrl(url)) {
+          return (
+            <p className="my-4 text-sm text-slate-500">
+              This media URL is invalid.
+            </p>
+          );
+        }
+
+        const embedUrl = getYouTubeEmbedUrl(url);
+
+        if (embedUrl) {
+          return <YouTubePlayer url={embedUrl} />;
+        }
+
+        return (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#C63C38] underline"
+          >
+            Open media
+          </a>
+        );
+      }
+
+      // 2. Handle images using their URLs.
+      if (node.type === "tag" && node.name === "img") {
+        const imageNode = node as Element;
+        const src = imageNode.attribs.src || "";
+        const alt = imageNode.attribs.alt || "Educational content image";
+
+        if (!isHttpUrl(src)) {
+          return (
+            <span className="text-sm text-slate-500">[Image unavailable]</span>
+          );
+        }
+
+        const safeSrc = new URL(src, window.location.origin).href;
+
+        return (
+          <figure className="my-6">
+            <img
+              src={safeSrc}
+              alt={alt}
+              loading="lazy"
+              decoding="async"
+              className="block h-auto max-w-full rounded-2xl border border-slate-100 shadow-sm"
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+              }}
+            />
+
+            {imageNode.attribs.alt && (
+              <figcaption className="mt-2 text-center text-sm text-slate-500">
+                {alt}
+              </figcaption>
+            )}
+          </figure>
+        );
+      }
+
+      // 3. Handle hyperlinks, including linked YouTube URLs.
+      if (node.type === "tag" && node.name === "a") {
+        const linkNode = node as Element;
+        const href = linkNode.attribs.href || "";
+
+        if (!isHttpUrl(href)) {
+          return undefined;
+        }
 
         const youtubeUrl = getYouTubeEmbedUrl(href);
 
@@ -192,44 +287,29 @@ export default function RichContent({
           return <MediaPlayer src={href} type={mediaType} />;
         }
 
-        // Open ordinary external links safely.
-        if (/^https?:\/\//i.test(href)) {
-          node.attribs.target = "_blank";
-          node.attribs.rel = "noopener noreferrer";
-        }
+        linkNode.attribs.target = "_blank";
+        linkNode.attribs.rel = "noopener noreferrer";
+
+        return undefined;
       }
 
-      // Make images responsive.
-      if (node instanceof Element && node.name === "img") {
-        const src = node.attribs.src || "";
+      // 4. Handle plain-text URLs.
+      if (node.type === "text") {
+        const textNode = node;
 
-        // Permit only HTTP(S) images.
-        try {
-          const parsed = new URL(src, window.location.origin);
-
-          if (!["http:", "https:"].includes(parsed.protocol)) {
-            return <span>[Image unavailable]</span>;
-          }
-        } catch {
-          return <span>[Image unavailable]</span>;
+        // Avoid generating nested links inside existing anchors.
+        if (
+          textNode.parent &&
+          textNode.parent.type === "tag" &&
+          textNode.parent.name === "a"
+        ) {
+          return undefined;
         }
 
-        return (
-          <img
-            src={src}
-            alt={node.attribs.alt || "Educational content image"}
-            loading="lazy"
-            className="my-6 h-auto max-w-full rounded-2xl shadow-sm"
-          />
-        );
+        return renderTextWithMedia(textNode.data) ?? undefined;
       }
 
-      // Handle plain-text URLs inside paragraphs and other elements.
-      if (node instanceof Text) {
-        return renderTextWithMedia(node.data) ?? undefined;
-      }
-
-      // Existing headings, paragraphs, lists, tables, etc. stay intact.
+      // 5. Preserve paragraphs, headings, tables, lists, and other HTML.
       return undefined;
     },
   };

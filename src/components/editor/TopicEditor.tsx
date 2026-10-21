@@ -23,6 +23,7 @@ import {
   Underline,
   Undo,
 } from "ckeditor5";
+import { ImageInsert, ImageInsertViaUrl } from "@ckeditor/ckeditor5-image";
 
 import "ckeditor5/ckeditor5.css";
 
@@ -44,22 +45,17 @@ function TopicEditor({
         data={value}
         config={{
           licenseKey: "GPL",
-
           plugins: [
             Essentials,
             Paragraph,
             Heading,
-
             Bold,
             Italic,
             Underline,
-
             Link,
-
             List,
             Indent,
             IndentBlock,
-
             BlockQuote,
 
             Image,
@@ -67,12 +63,12 @@ function TopicEditor({
             ImageStyle,
             ImageToolbar,
             ImageUpload,
+            ImageInsert,
+            ImageInsertViaUrl,
 
             MediaEmbed,
-
             Table,
             TableToolbar,
-
             Undo,
           ],
 
@@ -160,6 +156,10 @@ function TopicEditor({
         }}
         onChange={(_, editor) => {
           onChange(editor.getData());
+
+          const html = editor.getData();
+
+          console.log(html);
         }}
       />
     </div>

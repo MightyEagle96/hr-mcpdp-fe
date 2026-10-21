@@ -7,6 +7,10 @@ export const navigationLinks = [
     title: "Modules",
     path: "/modules",
   },
+  {
+    title: "Reset",
+    path: "/reset",
+  },
 
   // {
   //   title: "About",

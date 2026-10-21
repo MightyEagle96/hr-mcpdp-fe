@@ -30,6 +30,7 @@ import CandidateModulePostTest from "../pages/candidate/ModulePostTest";
 import PostTestResult from "../pages/candidate/PostTestResult";
 import UnitAssessmentResult from "../pages/candidate/UnitAssessmentResult";
 import Certificates from "../pages/candidate/CandidateCertificates";
+import ResetPage from "../pages/admin/ResetPage";
 
 //import UnauthorizedPage from "../pages/UnauthorisedPage";
 
@@ -47,6 +48,7 @@ function MainRoutes() {
 
     //modules
     { path: "/modules", element: <ModulesPage /> },
+    { path: "/reset", element: <ResetPage /> },
     {
       path: "/modules/:moduleId/:unitId/:topicId/author",
       element: <TopicAuthorPage />,
