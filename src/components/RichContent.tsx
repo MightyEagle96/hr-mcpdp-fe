@@ -1,6 +1,9 @@
 import { Fragment } from "react";
 import DOMPurify from "dompurify";
-import parse, { type HTMLReactParserOptions } from "html-react-parser";
+import parse, {
+  domToReact,
+  type HTMLReactParserOptions,
+} from "html-react-parser";
 import type { DOMNode, Element } from "html-react-parser";
 
 interface RichContentProps {
@@ -317,22 +320,32 @@ export default function RichContent({
   return (
     <article
       className={`
-        prose prose-slate max-w-none
-        prose-headings:font-bold
-        prose-headings:text-slate-900
-        prose-p:text-[16px]
-        prose-p:leading-8
-        prose-p:text-slate-700
-        prose-li:text-slate-700
-        prose-strong:text-slate-900
-        prose-a:text-[#C63C38]
-        prose-blockquote:border-[#C63C38]
-        prose-blockquote:text-slate-600
-        prose-img:rounded-2xl
-        prose-img:shadow-sm
-        prose-table:w-full
-        ${className}
-      `}
+    prose-table:w-full
+prose-table:my-0
+prose-table:border-collapse
+prose-table:text-sm
+
+prose-thead:bg-slate-100
+
+prose-th:border
+prose-th:border-slate-200
+prose-th:bg-slate-100
+prose-th:px-4
+prose-th:py-3
+prose-th:font-semibold
+prose-th:text-slate-900
+prose-th:text-left
+
+prose-td:border
+prose-td:border-slate-200
+prose-td:px-4
+prose-td:py-3
+prose-td:align-top
+prose-td:text-slate-700
+
+rich-content prose prose-slate max-w-none
+    ${className}
+  `}
     >
       {parse(cleanHtml, options)}
     </article>

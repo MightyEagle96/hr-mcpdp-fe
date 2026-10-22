@@ -1,1 +1,30 @@
 @import "tailwindcss";
+
+/* Table layout */
+.rich-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+
+/* Borders for every table cell */
+.rich-content table th,
+.rich-content table td {
+  border: 1px solid #cbd5e1;
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+
+/* Header styling */
+.rich-content table th {
+  background-color: #f1f5f9;
+  color: #242625;
+  font-weight: 700;
+}
+
+/* Alternating body rows */
+.rich-content table tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
