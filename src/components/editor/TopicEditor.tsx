@@ -26,6 +26,7 @@ import {
 import { ImageInsert, ImageInsertViaUrl } from "@ckeditor/ckeditor5-image";
 
 import "ckeditor5/ckeditor5.css";
+import CalloutPlugin from "./CalloutPlugin";
 
 interface TopicEditorProps {
   value: string;
@@ -70,6 +71,8 @@ function TopicEditor({
             Table,
             TableToolbar,
             Undo,
+
+            CalloutPlugin,
           ],
 
           table: {
@@ -106,6 +109,15 @@ function TopicEditor({
             "insertImage",
             "mediaEmbed",
             "insertTable",
+
+            "insertImage",
+            "mediaEmbed",
+            "insertTable",
+            "|",
+            "callout-key-takeaway",
+            "callout-note",
+            "callout-warning",
+            "callout-definition",
           ],
 
           heading: {

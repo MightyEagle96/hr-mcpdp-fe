@@ -28,3 +28,63 @@
 .rich-content table tbody tr:nth-child(even) {
   background-color: #f8fafc;
 }
+
+/* ========================================
+   HR-MCPDP CALLOUT BOXES
+======================================== */
+
+/* Shared callout appearance */
+.rich-content .callout,
+.ck-content .callout {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border-left: 4px solid;
+  border-radius: 0.5rem;
+}
+
+/* Key takeaway */
+.rich-content .callout--key-takeaway,
+.ck-content .callout--key-takeaway {
+  background: #fff5f5;
+  border-color: #c63c38;
+}
+
+/* Important note */
+.rich-content .callout--note,
+.ck-content .callout--note {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+/* Caution */
+.rich-content .callout--warning,
+.ck-content .callout--warning {
+  background: #fff7ed;
+  border-color: #ea580c;
+}
+
+/* Definition */
+.rich-content .callout--definition,
+.ck-content .callout--definition {
+  background: #f0fdf4;
+  border-color: #16a34a;
+}
+
+/* Paragraph spacing inside callouts */
+.ck-content .callout p,
+.rich-content .callout p {
+  margin: 0.5rem 0;
+}
+
+.ck-content .callout p:first-child,
+.rich-content .callout p:first-child {
+  margin-top: 0;
+}
+
+.ck-content .callout p:last-child,
+.rich-content .callout p:last-child {
+  margin-bottom: 0;
+}

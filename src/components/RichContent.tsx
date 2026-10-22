@@ -194,7 +194,7 @@ export default function RichContent({
 }: RichContentProps) {
   const cleanHtml = DOMPurify.sanitize(html, {
     ADD_TAGS: ["oembed"],
-    ADD_ATTR: ["url"],
+    ADD_ATTR: ["url", "data-callout-type"],
     FORBID_TAGS: ["iframe", "object", "embed"],
     FORBID_ATTR: ["srcdoc"],
   });

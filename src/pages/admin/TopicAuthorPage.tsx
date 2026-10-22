@@ -8,6 +8,7 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
+  X,
 } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { httpService } from "../../httpService";
@@ -17,6 +18,7 @@ import { toast } from "sonner";
 import { toastError } from "../../components/CustomToast";
 import DeleteTopicDialog from "./DeleteTopicDialog";
 import EditTopicDialog from "./EditTopicDialog";
+import RichContent from "../../components/RichContent";
 interface Module {
   _id: string;
   title: string;
@@ -54,6 +56,7 @@ function TopicAuthorPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isUpdatingTopic, setIsUpdatingTopic] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -260,6 +263,7 @@ function TopicAuthorPage() {
           <div className="flex items-center gap-3">
             <button
               type="button"
+              onClick={() => setIsPreviewOpen(true)}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
             >
               <Eye size={17} />
@@ -417,6 +421,64 @@ function TopicAuthorPage() {
         onClose={() => setIsEditDialogOpen(false)}
         onSave={handleEdit}
       />
+
+      {isPreviewOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsPreviewOpen(false);
+            }
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="content-preview-title"
+            className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+          >
+            {/* Modal header */}
+            <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-6 py-4">
+              <div>
+                <h2
+                  id="content-preview-title"
+                  className="text-lg font-bold text-slate-900"
+                >
+                  Content Preview
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Preview how this content will appear to learners.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsPreviewOpen(false)}
+                aria-label="Close preview"
+                className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Preview content */}
+            <div className="min-h-0 flex-1 overflow-y-auto p-6 sm:p-8">
+              <RichContent html={content || ""} />
+            </div>
+
+            {/* Modal footer */}
+            <div className="flex shrink-0 justify-end border-t border-slate-200 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setIsPreviewOpen(false)}
+                className="rounded-xl bg-[#C63C38] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#B63431]"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

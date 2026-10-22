@@ -167,27 +167,6 @@ function ModuleContent() {
 
         {/* Rich text content */}
         <RichContent html={content.content || ""} />
-        {/* <article
-          className="
-            prose prose-slate max-w-none
-            prose-headings:font-bold
-            prose-headings:text-slate-900
-            prose-p:text-[16px]
-            prose-p:leading-8
-            prose-p:text-slate-700
-            prose-li:text-slate-700
-            prose-strong:text-slate-900
-            prose-a:text-[#C63C38]
-            prose-blockquote:border-[#C63C38]
-            prose-blockquote:text-slate-600
-            prose-img:rounded-2xl
-            prose-img:shadow-sm
-            prose-table:w-full
-          "
-          dangerouslySetInnerHTML={{
-            __html: content.content || "",
-          }}
-        /> */}
 
         {/* Completion section */}
         <div className="mt-14 border-t border-slate-200 pt-8">
