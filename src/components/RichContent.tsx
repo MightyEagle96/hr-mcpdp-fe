@@ -1,9 +1,6 @@
 import { Fragment } from "react";
 import DOMPurify from "dompurify";
-import parse, {
-  domToReact,
-  type HTMLReactParserOptions,
-} from "html-react-parser";
+import parse, { type HTMLReactParserOptions } from "html-react-parser";
 import type { DOMNode, Element } from "html-react-parser";
 
 interface RichContentProps {
