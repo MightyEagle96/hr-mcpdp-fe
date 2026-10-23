@@ -127,7 +127,7 @@ function AdminDashboard() {
             value={statData.accounts.toLocaleString()}
             description="Registered accounts"
             icon={<Users size={21} />}
-            href="/admin/subscribers"
+            href="/subscribers"
             accent="charcoal"
           />
 
@@ -145,7 +145,7 @@ function AdminDashboard() {
             value={statData.modules.toLocaleString()}
             description="Modules in the portal"
             icon={<BookOpen size={21} />}
-            href="/admin/modules"
+            href="/modules"
             accent="slate"
           />
 
@@ -154,7 +154,7 @@ function AdminDashboard() {
             value={statData.activeModules.toLocaleString()}
             description="Currently available"
             icon={<Activity size={21} />}
-            href="/admin/modules?status=active"
+            href="/modules?status=active"
             accent="green"
           />
         </div>
