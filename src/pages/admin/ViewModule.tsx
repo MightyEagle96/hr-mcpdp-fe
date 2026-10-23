@@ -35,6 +35,7 @@ interface Unit {
   description: string;
   content?: string;
   order: number;
+  topics: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -67,8 +68,6 @@ function ViewModule() {
         content: data.content,
         order: data.order,
       };
-
-      console.log("Creating unit:", payload);
 
       const response = await httpService.post("unit/create_unit", payload);
 
@@ -507,7 +506,7 @@ function UnitCard({ unit }: { unit: Unit }) {
             <span className="text-xs font-medium text-slate-400">Topics</span>
 
             <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-500">
-              0
+              {unit.topics}
             </span>
           </div>
         </div>
