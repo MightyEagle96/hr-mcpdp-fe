@@ -168,10 +168,6 @@ function TopicEditor({
         }}
         onChange={(_, editor) => {
           onChange(editor.getData());
-
-          const html = editor.getData();
-
-          console.log(html);
         }}
       />
     </div>

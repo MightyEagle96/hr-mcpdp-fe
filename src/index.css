@@ -175,3 +175,19 @@
   line-height: 1.75;
   margin: 0.75rem 0;
 }
+
+/* HR-MCPDP Topic Editor */
+.topic-editor .ck-editor__editable {
+  min-height: 500px;
+}
+
+/* Give administrators more writing space on desktop */
+@media (min-width: 1024px) {
+  .topic-editor .ck-editor__editable {
+    min-height: 600px;
+  }
+}
+
+.topic-editor .ck-editor__editable_inline {
+  min-height: 500px;
+}
