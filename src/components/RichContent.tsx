@@ -1,4 +1,4 @@
-import { Fragment, useMemo } from "react";
+import { Fragment } from "react";
 import DOMPurify from "dompurify";
 import parse, {
   domToReact,
@@ -76,31 +76,6 @@ function getMediaType(rawUrl: string): "video" | "audio" | null {
   }
 }
 
-function wrapTables(html: string): string {
-  if (!html) return "";
-
-  // Don't wrap tables that already have our wrapper.
-  return html.replace(
-    /<table\b([^>]*)>([\s\S]*?)<\/table>/gi,
-    (table, attributes, content, offset, originalHtml) => {
-      // Avoid double-wrapping tables already inside table-scroll-wrapper.
-      const beforeTable = originalHtml.slice(0, offset);
-
-      const alreadyWrapped =
-        /<div\b[^>]*class=["'][^"']*\btable-scroll-wrapper\b[^"']*["'][^>]*>\s*$/i.test(
-          beforeTable,
-        );
-
-      if (alreadyWrapped) return table;
-
-      return `
-        <div class="table-scroll-wrapper">
-          <table${attributes}>${content}</table>
-        </div>
-      `;
-    },
-  );
-}
 function YouTubePlayer({ url }: { url: string }) {
   return (
     <div className="my-6 aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-sm">
