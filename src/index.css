@@ -1,39 +1,83 @@
 @import "tailwindcss";
 
-/* Table layout */
-.rich-content table {
+/* ========================================
+   RESPONSIVE CKEDITOR TABLES
+======================================== */
+
+/* Constrain CKEditor's table figure */
+.rich-content figure.table {
+  display: block;
   width: 100%;
-  border-collapse: collapse;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   margin: 1.5rem 0;
+}
+
+/* Scroll container */
+.rich-content figure.table .table-scroll-wrapper {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+/* Allow the table to be wider than its container */
+.rich-content figure.table .table-scroll-wrapper table {
+  display: table;
+  width: max-content !important;
+  min-width: 650px;
+  max-width: none !important;
+  table-layout: auto;
+  border-collapse: collapse;
+  margin: 0;
   font-size: 0.95rem;
 }
 
-/* Borders for every table cell */
-.rich-content table th,
-.rich-content table td {
+/* Cell styling */
+.rich-content figure.table .table-scroll-wrapper th,
+.rich-content figure.table .table-scroll-wrapper td {
+  min-width: 100px;
+  box-sizing: border-box;
   border: 1px solid #cbd5e1;
   padding: 12px 14px;
   text-align: left;
   vertical-align: top;
 }
 
-/* Header styling */
-.rich-content table th {
+/* Header */
+.rich-content figure.table .table-scroll-wrapper th {
   background-color: #f1f5f9;
   color: #242625;
   font-weight: 700;
 }
 
-/* Alternating body rows */
-.rich-content table tbody tr:nth-child(even) {
+/* Alternating rows */
+.rich-content figure.table .table-scroll-wrapper tbody tr:nth-child(even) {
   background-color: #f8fafc;
+}
+@media (max-width: 640px) {
+  .rich-content .table-scroll-wrapper table {
+    min-width: 650px;
+  }
+}
+
+/* Responsive images and media */
+.rich-content img,
+.rich-content video,
+.rich-content iframe {
+  max-width: 100%;
 }
 
 /* ========================================
    HR-MCPDP CALLOUT BOXES
 ======================================== */
 
-/* Shared callout appearance */
 .rich-content .callout,
 .ck-content .callout {
   box-sizing: border-box;
@@ -89,7 +133,10 @@
   margin-bottom: 0;
 }
 
-/* CKEditor headings and rendered rich content */
+/* ========================================
+   TYPOGRAPHY
+======================================== */
+
 .ck-content h1,
 .rich-content h1 {
   font-size: 2.25rem;

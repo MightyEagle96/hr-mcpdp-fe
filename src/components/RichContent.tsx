@@ -1,7 +1,11 @@
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import DOMPurify from "dompurify";
-import parse, { type HTMLReactParserOptions } from "html-react-parser";
-import type { DOMNode, Element } from "html-react-parser";
+import parse, {
+  domToReact,
+  type DOMNode,
+  type Element,
+  type HTMLReactParserOptions,
+} from "html-react-parser";
 
 interface RichContentProps {
   html?: string;
@@ -72,6 +76,31 @@ function getMediaType(rawUrl: string): "video" | "audio" | null {
   }
 }
 
+function wrapTables(html: string): string {
+  if (!html) return "";
+
+  // Don't wrap tables that already have our wrapper.
+  return html.replace(
+    /<table\b([^>]*)>([\s\S]*?)<\/table>/gi,
+    (table, attributes, content, offset, originalHtml) => {
+      // Avoid double-wrapping tables already inside table-scroll-wrapper.
+      const beforeTable = originalHtml.slice(0, offset);
+
+      const alreadyWrapped =
+        /<div\b[^>]*class=["'][^"']*\btable-scroll-wrapper\b[^"']*["'][^>]*>\s*$/i.test(
+          beforeTable,
+        );
+
+      if (alreadyWrapped) return table;
+
+      return `
+        <div class="table-scroll-wrapper">
+          <table${attributes}>${content}</table>
+        </div>
+      `;
+    },
+  );
+}
 function YouTubePlayer({ url }: { url: string }) {
   return (
     <div className="my-6 aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-sm">
@@ -293,7 +322,24 @@ export default function RichContent({
         return undefined;
       }
 
-      // 4. Handle plain-text URLs.
+      // 4. Handle tables with horizontal scrolling on mobile.
+      if (node.type === "tag" && node.name === "table") {
+        const tableNode = node as Element;
+
+        return (
+          <div
+            className="table-scroll-wrapper"
+            role="region"
+            aria-label="Scrollable table"
+            tabIndex={0}
+          >
+            <table {...tableNode.attribs}>
+              {domToReact(tableNode.children as DOMNode[], options)}
+            </table>
+          </div>
+        );
+      }
+      // 5. Handle plain-text URLs.
       if (node.type === "text") {
         const textNode = node;
 

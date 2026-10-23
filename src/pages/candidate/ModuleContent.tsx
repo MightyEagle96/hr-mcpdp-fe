@@ -166,7 +166,9 @@ function ModuleContent() {
         </header>
 
         {/* Rich text content */}
-        <RichContent html={content.content || ""} />
+        <div className="min-w-0 flex-1">
+          <RichContent html={content.content || ""} />
+        </div>
 
         {/* Completion section */}
         <div className="mt-14 border-t border-slate-200 pt-8">

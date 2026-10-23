@@ -50,9 +50,9 @@ function ModuleLearning() {
 
     <div className="min-h-screen bg-[#F7F8F8]">
       <div className="relative flex min-h-screen">
-        {/* Desktop sidebar */}
+        {/* Desktop sidebar: visible only on large screens */}
         {workspace && (
-          <aside className="hidden md:block md:w-80 md:shrink-0">
+          <aside className="hidden lg:block lg:w-80 lg:shrink-0">
             <ModuleProgress
               workspace={workspace}
               selectedTopicId={selectedTopicId}
@@ -63,13 +63,15 @@ function ModuleLearning() {
 
         {/* Main content */}
         <main className="min-w-0 flex-1">
-          {/* Mobile course contents button */}
+          {/* Toggle button on mobile, landscape and tablet */}
           {workspace && (
-            <div className="sticky top-0 z-30 border-b border-gray-200 bg-white px-4 py-3 md:hidden">
+            <div className="sticky top-0 z-30 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 lg:hidden">
               <button
                 type="button"
                 onClick={() => setIsProgressOpen(true)}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#C63C38] px-4 py-2 text-sm font-medium text-white hover:bg-[#B63431]"
+                aria-label="Open course contents"
+                aria-expanded={isProgressOpen}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#C63C38] px-3 py-2 text-sm font-medium text-white hover:bg-[#B63431]"
               >
                 <Menu size={18} />
                 Course Contents
@@ -80,9 +82,9 @@ function ModuleLearning() {
           <ModuleContent />
         </main>
 
-        {/* Mobile drawer */}
+        {/* Toggleable drawer on all screens below lg */}
         {workspace && isProgressOpen && (
-          <div className="fixed inset-0 z-50 md:hidden">
+          <div className="fixed inset-0 z-50 lg:hidden">
             {/* Backdrop */}
             <button
               type="button"
@@ -91,9 +93,14 @@ function ModuleLearning() {
               onClick={() => setIsProgressOpen(false)}
             />
 
-            {/* Drawer panel */}
-            <aside className="absolute inset-y-0 left-0 flex w-[85%] max-w-sm flex-col overflow-y-auto bg-white shadow-xl">
-              <div className="flex items-center justify-between border-b border-gray-200 px-4 py-4">
+            {/* Drawer */}
+            <aside
+              role="dialog"
+              aria-modal="true"
+              aria-label="Course contents"
+              className="absolute inset-y-0 left-0 flex w-[85%] max-w-sm flex-col overflow-y-auto bg-white shadow-xl"
+            >
+              <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-3">
                 <div className="flex items-center gap-2 font-semibold text-[#242625]">
                   <BookOpen size={20} />
                   Course Contents
@@ -109,14 +116,16 @@ function ModuleLearning() {
                 </button>
               </div>
 
-              <ModuleProgress
-                workspace={workspace}
-                selectedTopicId={selectedTopicId}
-                onTopicSelect={(topicId) => {
-                  setSelectedTopicId(topicId);
-                  setIsProgressOpen(false);
-                }}
-              />
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                <ModuleProgress
+                  workspace={workspace}
+                  selectedTopicId={selectedTopicId}
+                  onTopicSelect={(topicId) => {
+                    setSelectedTopicId(topicId);
+                    setIsProgressOpen(false);
+                  }}
+                />
+              </div>
             </aside>
           </div>
         )}
