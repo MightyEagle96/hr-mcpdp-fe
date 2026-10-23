@@ -26,11 +26,17 @@ export default class CalloutPlugin extends Plugin {
 
     // 1. Define the callout model.
     editor.model.schema.register("callout", {
-      allowWhere: "$block",
+      inheritAllFrom: "$container",
       allowContentOf: "$root",
       allowAttributes: ["calloutType"],
       isLimit: true,
     });
+    // editor.model.schema.register("callout", {
+    //   allowWhere: "$block",
+    //   allowContentOf: "$root",
+    //   allowAttributes: ["calloutType"],
+    //   isLimit: true,
+    // });
 
     // 2. Convert saved HTML into the editor model.
     editor.conversion.for("upcast").elementToElement({
@@ -98,18 +104,44 @@ export default class CalloutPlugin extends Plugin {
               calloutType: callout.type,
             });
 
-            // Insert the callout at the current selection.
             editor.model.insertContent(element);
 
-            // Create an editable paragraph inside the callout.
             const paragraph = writer.createElement("paragraph");
-
             writer.insert(paragraph, writer.createPositionAt(element, 0));
 
-            // Put the caret inside the new paragraph.
+            // Ensure there is an ordinary paragraph after the callout.
+            const positionAfterCallout = writer.createPositionAfter(element);
+            const nextSibling = element.nextSibling;
+
+            if (!nextSibling || nextSibling.is("element", "callout")) {
+              writer.insert(
+                writer.createElement("paragraph"),
+                positionAfterCallout,
+              );
+            }
+
+            // Begin editing inside the callout.
             writer.setSelection(paragraph, "in");
           });
         });
+        // button.on("execute", () => {
+        //   editor.model.change((writer) => {
+        //     const element = writer.createElement("callout", {
+        //       calloutType: callout.type,
+        //     });
+
+        //     // Insert the callout at the current selection.
+        //     editor.model.insertContent(element);
+
+        //     // Create an editable paragraph inside the callout.
+        //     const paragraph = writer.createElement("paragraph");
+
+        //     writer.insert(paragraph, writer.createPositionAt(element, 0));
+
+        //     // Put the caret inside the new paragraph.
+        //     writer.setSelection(paragraph, "in");
+        //   });
+        // });
 
         return button;
       });
