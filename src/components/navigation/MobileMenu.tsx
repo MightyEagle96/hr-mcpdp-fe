@@ -9,9 +9,6 @@ import {
   Award,
   ArrowRight,
   User,
-  // Info,
-  // CircleHelp,
-  // Phone,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import AuthButtons from "./AuthButtons";
@@ -21,6 +18,8 @@ export default function MobileMenu() {
   const [open, setOpen] = useState(false);
 
   const { user } = useAppUser();
+
+  const close = () => setOpen(false);
 
   const links = [
     {
@@ -43,21 +42,6 @@ export default function MobileMenu() {
       icon: <User size={20} />,
       href: "/register",
     },
-    // {
-    //   title: "About",
-    //   icon: <Info size={20} />,
-    //   href: "/about",
-    // },
-    // {
-    //   title: "FAQs",
-    //   icon: <CircleHelp size={20} />,
-    //   href: "/faqs",
-    // },
-    // {
-    //   title: "Contact",
-    //   icon: <Phone size={20} />,
-    //   href: "/contact",
-    // },
   ];
 
   const candidateLinks = [
@@ -81,21 +65,6 @@ export default function MobileMenu() {
       icon: <Award size={20} />,
       href: "/mymodules",
     },
-    // {
-    //   title: "About",
-    //   icon: <Info size={20} />,
-    //   href: "/about",
-    // },
-    // {
-    //   title: "FAQs",
-    //   icon: <CircleHelp size={20} />,
-    //   href: "/faqs",
-    // },
-    // {
-    //   title: "Contact",
-    //   icon: <Phone size={20} />,
-    //   href: "/contact",
-    // },
   ];
   const linksToDisplay = user?.role === "candidate" ? candidateLinks : links;
 
@@ -114,7 +83,12 @@ export default function MobileMenu() {
         slotProps={{
           paper: {
             sx: {
-              width: 340,
+              width: { xs: "88vw", sm: 340 },
+              maxWidth: "100vw",
+              right: 0,
+              top: 0,
+              bottom: 0,
+              boxSizing: "border-box",
               borderTopLeftRadius: 28,
               borderBottomLeftRadius: 28,
               background: "#ffffff",
@@ -155,7 +129,9 @@ export default function MobileMenu() {
               </NavLink>
             ))}
           </div>
-          <AuthButtons />
+          <div className="mt-8 border-t border-slate-100 pt-6">
+            <AuthButtons variant="mobile" onAction={close} />
+          </div>
         </div>
       </Drawer>
     </>
