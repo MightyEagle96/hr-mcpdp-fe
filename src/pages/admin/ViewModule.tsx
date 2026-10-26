@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
 import {
+  AlertTriangle,
   ArrowLeft,
+  ArrowRight,
   BookOpen,
   CalendarDays,
+  CheckCircle2,
   ClipboardCheck,
   Clock3,
   Edit3,
   FileText,
   ImageOff,
   Layers3,
+  LoaderCircle,
   Plus,
   Trash2,
+  X,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { httpService } from "../../httpService";
@@ -39,6 +44,58 @@ interface Unit {
   createdAt: string;
   updatedAt: string;
 }
+
+type PreviewTopic = {
+  id: string;
+  title: string;
+  order: number;
+  hasContent: boolean;
+};
+
+type PreviewUnit = {
+  id: string;
+  title: string;
+  order: number;
+  topicCount: number;
+  topicsWithContent: number;
+  topicsWithoutContent: number;
+  topics: PreviewTopic[];
+  assessment: {
+    exists: boolean;
+    bankCount: number;
+  };
+};
+
+type ModulePreview = {
+  module: {
+    id: string;
+    title: string;
+    code: string;
+    status: string;
+  };
+  summary: {
+    totalUnits: number;
+    totalTopics: number;
+    topicsWithContent: number;
+    topicsWithoutContent: number;
+    unitsWithAssessment: number;
+    unitsWithoutAssessment: number;
+    totalUnitAssessmentBanks: number;
+    totalPretestBanks: number;
+    totalPostTestBanks: number;
+    hasPretest: boolean;
+    hasPostTest: boolean;
+    readyForPublication: boolean;
+    issueCount: number;
+  };
+  units: PreviewUnit[];
+  issues: {
+    code: string;
+    message: string;
+    unitId?: string;
+    topicId?: string;
+  }[];
+};
 function ViewModule() {
   const { identifier } = useParams<{ identifier: string }>();
 
@@ -49,6 +106,39 @@ function ViewModule() {
   const [showAddUnit, setShowAddUnit] = useState(false);
 
   const [isCreatingUnit, setIsCreatingUnit] = useState(false);
+
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewData, setPreviewData] = useState<ModulePreview | null>(null);
+  const [previewError, setPreviewError] = useState("");
+
+  const handlePreviewModule = async () => {
+    setPreviewLoading(true);
+    setPreviewError("");
+    setPreviewOpen(true);
+    setPreviewData(null);
+
+    try {
+      const response = await httpService.get(
+        `/module/preview_module/${identifier}`,
+      );
+
+      setPreviewData(response.data.data);
+    } catch (error) {
+      if (error) {
+        toastError(error);
+        // setPreviewError(
+        //   error.response?.data?.message ??
+        //     error.response?.data?.error ??
+        //     "Unable to generate the module preview. Please try again.",
+        // );
+      } else {
+        setPreviewError("An unexpected error occurred.");
+      }
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
 
   const handleCreateUnit = async (data: {
     title: string;
@@ -289,6 +379,46 @@ function ViewModule() {
                 value={formatDate(module.updatedAt)}
               />
             </div>
+
+            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#C63C38] shadow-sm">
+                  <ClipboardCheck size={20} />
+                </div>
+
+                <div className="flex-1">
+                  <p className="font-semibold text-slate-800">
+                    Module Quality Control
+                  </p>
+
+                  <p className="mt-1 text-sm leading-6 text-slate-500">
+                    Review your module structure, verify lesson content, and
+                    ensure all required assessment banks are available before
+                    publication.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handlePreviewModule}
+                disabled={previewLoading}
+                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#C63C38] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#B63431] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              >
+                {previewLoading ? (
+                  <>
+                    <LoaderCircle size={17} className="animate-spin" />
+                    Generating Preview...
+                  </>
+                ) : (
+                  <>
+                    <ClipboardCheck size={17} />
+                    Preview Module
+                    <ArrowRight size={16} />
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Content Management */}
@@ -368,6 +498,377 @@ function ViewModule() {
           )}
         </div>
       </div>
+
+      {previewOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-sm sm:p-6"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setPreviewOpen(false);
+            }
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="module-preview-title"
+            className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-5 sm:px-7">
+              <div className="flex items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FCEDEC] text-[#C63C38]">
+                  <ClipboardCheck size={22} />
+                </div>
+
+                <div>
+                  <h2
+                    id="module-preview-title"
+                    className="text-lg font-bold text-slate-900 sm:text-xl"
+                  >
+                    Module Quality Preview
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    Review your learning content and assessment readiness.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(false)}
+                aria-label="Close module preview"
+                className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-5 sm:p-7">
+              {previewLoading && (
+                <div className="flex min-h-64 flex-col items-center justify-center gap-4">
+                  <LoaderCircle
+                    size={38}
+                    className="animate-spin text-[#C63C38]"
+                  />
+                  <div className="text-center">
+                    <p className="font-semibold text-slate-800">
+                      Inspecting module...
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Checking units, topics, content and assessment banks.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {!previewLoading && previewError && (
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle
+                      size={22}
+                      className="shrink-0 text-red-600"
+                    />
+                    <div>
+                      <p className="font-semibold text-red-800">
+                        Preview could not be generated
+                      </p>
+                      <p className="mt-1 text-sm leading-6 text-red-700">
+                        {previewError}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handlePreviewModule}
+                    className="mt-4 rounded-xl bg-[#C63C38] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#B63431]"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              )}
+
+              {!previewLoading && !previewError && previewData && (
+                <div className="space-y-6">
+                  {/* Module overview */}
+                  <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                        {previewData.module.code}
+                      </p>
+                      <h3 className="mt-1 text-xl font-bold text-slate-900">
+                        {previewData.module.title}
+                      </h3>
+                      <p className="mt-1 text-sm text-slate-500">
+                        Module status: {previewData.module.status}
+                      </p>
+                    </div>
+
+                    <div
+                      className={`inline-flex w-fit items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold ${
+                        previewData.summary.readyForPublication
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-red-50 text-red-700"
+                      }`}
+                    >
+                      {previewData.summary.readyForPublication ? (
+                        <CheckCircle2 size={18} />
+                      ) : (
+                        <AlertTriangle size={18} />
+                      )}
+
+                      {previewData.summary.readyForPublication
+                        ? "All Checks Passed"
+                        : `${previewData.summary.issueCount} Issue(s) Found`}
+                    </div>
+                  </div>
+
+                  {/* Summary cards */}
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {[
+                      {
+                        label: "Total Units",
+                        value: previewData.summary.totalUnits,
+                      },
+                      {
+                        label: "Total Topics",
+                        value: previewData.summary.totalTopics,
+                      },
+                      {
+                        label: "Topics With Content",
+                        value: previewData.summary.topicsWithContent,
+                      },
+                      {
+                        label: "Assessment Banks",
+                        value: previewData.summary.totalUnitAssessmentBanks,
+                      },
+                    ].map((item) => (
+                      <div
+                        key={item.label}
+                        className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                      >
+                        <p className="text-xs leading-5 text-slate-500">
+                          {item.label}
+                        </p>
+                        <p className="mt-2 text-2xl font-bold text-slate-900">
+                          {item.value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Required assessment banks */}
+                  <section>
+                    <h3 className="mb-3 font-bold text-slate-900">
+                      Module Assessments
+                    </h3>
+
+                    <div className="space-y-3">
+                      {[
+                        {
+                          label: "Pretest",
+                          count: previewData.summary.totalPretestBanks,
+                          exists: previewData.summary.hasPretest,
+                        },
+                        {
+                          label: "Post-test",
+                          count: previewData.summary.totalPostTestBanks,
+                          exists: previewData.summary.hasPostTest,
+                        },
+                      ].map((assessment) => (
+                        <div
+                          key={assessment.label}
+                          className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-4"
+                        >
+                          <div>
+                            <p className="font-semibold text-slate-800">
+                              {assessment.label}
+                            </p>
+                            <p className="mt-1 text-sm text-slate-500">
+                              {assessment.count} bank(s) found
+                            </p>
+                          </div>
+
+                          {assessment.exists ? (
+                            <CheckCircle2
+                              size={20}
+                              className="shrink-0 text-emerald-600"
+                            />
+                          ) : (
+                            <AlertTriangle
+                              size={20}
+                              className="shrink-0 text-red-600"
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* Unit and topic inspection */}
+                  <section>
+                    <h3 className="mb-3 font-bold text-slate-900">
+                      Units and Learning Topics
+                    </h3>
+
+                    {previewData.units.length === 0 ? (
+                      <div className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+                        No units have been added to this module.
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {previewData.units.map((unit) => (
+                          <div
+                            key={unit.id}
+                            className="overflow-hidden rounded-2xl border border-slate-200"
+                          >
+                            <div className="flex flex-col gap-3 bg-slate-50 p-4 sm:flex-row sm:items-start sm:justify-between">
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                  Unit {unit.order + 1}
+                                </p>
+                                <h4 className="mt-1 font-bold text-slate-900">
+                                  {unit.title}
+                                </h4>
+                                <p className="mt-1 text-sm text-slate-500">
+                                  {unit.topicCount} topic(s)
+                                </p>
+                              </div>
+
+                              <div className="flex flex-wrap gap-2">
+                                <span
+                                  className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
+                                    unit.assessment.exists
+                                      ? "bg-emerald-50 text-emerald-700"
+                                      : "bg-red-50 text-red-700"
+                                  }`}
+                                >
+                                  {unit.assessment.bankCount} assessment bank(s)
+                                </span>
+
+                                <span className="rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
+                                  {unit.topicsWithContent}/{unit.topicCount}{" "}
+                                  populated
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="divide-y divide-slate-100">
+                              {unit.topics.map((topic) => (
+                                <div
+                                  key={topic.id}
+                                  className="flex items-start gap-3 p-4"
+                                >
+                                  {topic.hasContent ? (
+                                    <CheckCircle2
+                                      size={18}
+                                      className="mt-0.5 shrink-0 text-emerald-600"
+                                    />
+                                  ) : (
+                                    <AlertTriangle
+                                      size={18}
+                                      className="mt-0.5 shrink-0 text-red-600"
+                                    />
+                                  )}
+
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-medium text-slate-800">
+                                      {topic.title}
+                                    </p>
+                                    {!topic.hasContent && (
+                                      <p className="mt-1 text-xs font-medium text-red-600">
+                                        Learning content is missing
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  <span className="shrink-0 text-xs text-slate-400">
+                                    Topic {topic.order + 1}
+                                  </span>
+                                </div>
+                              ))}
+
+                              {unit.topics.length === 0 && (
+                                <p className="p-4 text-sm text-red-600">
+                                  This unit has no topics.
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+
+                  {/* Issues */}
+                  <section>
+                    <h3 className="mb-3 font-bold text-slate-900">
+                      Quality Control Findings
+                    </h3>
+
+                    {previewData.issues.length === 0 ? (
+                      <div className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                        <CheckCircle2
+                          size={21}
+                          className="shrink-0 text-emerald-700"
+                        />
+                        <div>
+                          <p className="font-semibold text-emerald-800">
+                            Excellent work!
+                          </p>
+                          <p className="mt-1 text-sm text-emerald-700">
+                            All configured module quality checks have passed.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {previewData.issues.map((issue, index) => (
+                          <div
+                            key={`${issue.code}-${issue.topicId ?? issue.unitId ?? index}`}
+                            className="flex items-start gap-3 rounded-xl border border-red-100 bg-red-50/60 p-3.5"
+                          >
+                            <AlertTriangle
+                              size={18}
+                              className="mt-0.5 shrink-0 text-red-600"
+                            />
+                            <div>
+                              <p className="text-sm font-medium text-slate-800">
+                                {issue.message}
+                              </p>
+                              <p className="mt-1 text-xs text-slate-400">
+                                {issue.code}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:px-7">
+              <p className="hidden text-xs text-slate-500 sm:block">
+                Module quality control report
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(false)}
+                className="ml-auto rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
