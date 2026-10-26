@@ -123,6 +123,7 @@ function ViewModule() {
         `/module/preview_module/${identifier}`,
       );
 
+      console.log(response.data.data);
       setPreviewData(response.data.data);
     } catch (error) {
       if (error) {
@@ -728,7 +729,7 @@ function ViewModule() {
                             <div className="flex flex-col gap-3 bg-slate-50 p-4 sm:flex-row sm:items-start sm:justify-between">
                               <div>
                                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                                  Unit {unit.order + 1}
+                                  Unit {unit.order}
                                 </p>
                                 <h4 className="mt-1 font-bold text-slate-900">
                                   {unit.title}
@@ -786,7 +787,7 @@ function ViewModule() {
                                   </div>
 
                                   <span className="shrink-0 text-xs text-slate-400">
-                                    Topic {topic.order + 1}
+                                    Topic {topic.order}
                                   </span>
                                 </div>
                               ))}
