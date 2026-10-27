@@ -127,7 +127,7 @@ import { Menu, X, BookOpen } from "lucide-react";
 
 function ModuleLearning() {
   const { id } = useParams();
-  const [params] = useSearchParams();
+  //const [params] = useSearchParams();
 
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [workspace, setWorkspace] = useState<ModuleLearningWorkspace | null>(
